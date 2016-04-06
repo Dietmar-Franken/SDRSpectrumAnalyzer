@@ -1,0 +1,5 @@
+LIBRARY	"RTLSDRDevice"
+EXPORTS   
+   Initialize @1
+   GetBufferSize @2
+   GetBins @3
