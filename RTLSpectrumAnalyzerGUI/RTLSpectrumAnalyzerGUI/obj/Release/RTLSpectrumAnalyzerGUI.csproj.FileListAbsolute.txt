@@ -1,0 +1,8 @@
+C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\bin\Release\RTLSpectrumAnalyzerGUI.exe.config
+C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\bin\Release\RTLSpectrumAnalyzerGUI.exe
+C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\bin\Release\RTLSpectrumAnalyzerGUI.pdb
+C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\obj\Release\RTLSpectrumAnalyzerGUI.Form1.resources
+C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\obj\Release\RTLSpectrumAnalyzerGUI.Properties.Resources.resources
+C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\obj\Release\RTLSpectrumAnalyzerGUI.csproj.GenerateResource.Cache
+C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\obj\Release\RTLSpectrumAnalyzerGUI.exe
+C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\obj\Release\RTLSpectrumAnalyzerGUI.pdb

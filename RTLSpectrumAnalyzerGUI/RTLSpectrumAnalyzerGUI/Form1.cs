@@ -67,6 +67,9 @@ namespace RTLSpectrumAnalyzerGUI
 
         bool newData = false;
 
+        double minAvgStrength = 9999;
+        double maxAvgStrength = -9999;
+
         class BinData
         {
             public string dataSeries;
@@ -266,12 +269,13 @@ namespace RTLSpectrumAnalyzerGUI
             }
         }
 
-        private void RecordData(ref BinData binData)
+        private void RecordData(ref BinData binData, ref double averageStrength)
         {
             if (binData.binArray.Length==0)
                 binData = new BinData(totalBinCount, binData.dataSeries);                        
 
             double value;
+            averageStrength = 0;
             
             NativeMethods.GetBins(binData.binArray);
 
@@ -283,6 +287,8 @@ namespace RTLSpectrumAnalyzerGUI
                     value = -25;
 
                 binData.totalBinArray[j] += value;
+
+                averageStrength += value;
             }
 
             binData.numberOfFrames++;            
@@ -291,6 +297,14 @@ namespace RTLSpectrumAnalyzerGUI
             {
                 binData.avgBinArray[j] = binData.totalBinArray[j] / binData.numberOfFrames;
             }
+            
+            averageStrength /= binData.size;
+
+            if (averageStrength > maxAvgStrength)
+                maxAvgStrength = averageStrength;
+
+            if (averageStrength < minAvgStrength)
+                minAvgStrength = averageStrength;
 
             if (resetGraph)
                 newData = true;
@@ -348,9 +362,23 @@ namespace RTLSpectrumAnalyzerGUI
         }
 
 
-        
+        private void GraphAverageStrength(double averageStrength)
+        {
+            System.Windows.Forms.DataVisualization.Charting.DataPoint graphPoint;
+            graphPoint = new System.Windows.Forms.DataVisualization.Charting.DataPoint();
+            graphPoint.SetValueY(averageStrength);
+            graphPoint.AxisLabel = " ";
+            graphPoint.IsValueShownAsLabel = false;
+            graphPoint.Label = "";
+            chart3.Series["Series1"].Points.Add(graphPoint);
 
-        
+            if (minAvgStrength != maxAvgStrength)
+            {
+                chart3.ChartAreas[0].AxisY.Minimum = Math.Round(minAvgStrength, 2);
+                chart3.ChartAreas[0].AxisY.Maximum = Math.Round(maxAvgStrength, 2);
+            }
+        }
+
 
         private void button3_Click(object sender, EventArgs e)
         {
@@ -360,8 +388,9 @@ namespace RTLSpectrumAnalyzerGUI
                 {
                     recordingSeries1 = true;
                     while (recordingSeries1)
-                    {                        
-                        RecordData(ref series1BinData);
+                    {                  
+                        double averageStrength = 0;
+                        RecordData(ref series1BinData, ref averageStrength);
 
                         try
                         {
@@ -369,6 +398,7 @@ namespace RTLSpectrumAnalyzerGUI
                             {
                                 GraphData(series1BinData);
                                 GraphDifference(series1BinData, series2BinData);
+                                GraphAverageStrength(averageStrength);
                             }));
                         }
                         catch (Exception ex)
@@ -402,7 +432,8 @@ namespace RTLSpectrumAnalyzerGUI
 
                     while (recordingSeries2)
                     {
-                        RecordData(ref series2BinData);
+                        double averageStrength = 0;
+                        RecordData(ref series2BinData, ref averageStrength);
 
                         try
                         {
@@ -410,9 +441,10 @@ namespace RTLSpectrumAnalyzerGUI
                             {
                                 GraphData(series2BinData);
                                 GraphDifference(series1BinData, series2BinData);
+                                GraphAverageStrength(averageStrength);
                             }));
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
 
                         }
@@ -474,7 +506,17 @@ namespace RTLSpectrumAnalyzerGUI
 
                     SaveConfig();
 
-                    int result = NativeMethods.Initialize(dataLowerFrequency, dataUpperFrequency, stepSize);
+                    int result= 0;
+
+                    try
+                    {
+                        result = NativeMethods.Initialize(dataLowerFrequency, dataUpperFrequency, stepSize);
+                    }
+                    catch(Exception ex)
+                    {
+
+                        MessageBox.Show(ex.ToString());
+                    }
 
                     if (result < 0)
                     {
@@ -509,9 +551,9 @@ namespace RTLSpectrumAnalyzerGUI
                     }
                 }
             }
-            catch(Exception )
+            catch(Exception ex)
             {
-                MessageBox.Show("Invalid Values");
+                MessageBox.Show(ex.ToString());
             }
         }
 
@@ -539,6 +581,12 @@ namespace RTLSpectrumAnalyzerGUI
             chart2.ChartAreas[0].CursorX.IsUserSelectionEnabled = true;
             chart2.ChartAreas[0].AxisX.IsMarginVisible = false;
             chart2.ChartAreas[0].AxisX.ScrollBar.Enabled = false;
+
+            chart3.Series["Series1"].IsValueShownAsLabel = false;
+
+            chart3.ChartAreas[0].AxisY.Minimum = -20.5;
+            chart3.ChartAreas[0].AxisY.Maximum = -19.5;
+                       
 
             LoadConfig();
 

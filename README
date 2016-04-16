@@ -21,6 +21,14 @@ The average of the recorded signals is used since this has a significant effect 
 Installation
 ------------
 
+You need to have the Visual C++ Redistributable Packages for Visual Studio 2013 from Microsoft found here:
+
+http://www.microsoft.com/en-us/download/details.aspx?id=40784
+
+
+Just download vcredist_x86.exe
+
+
 If you haven't already installed the dongle follow this guide here:
 
 http://www.rtl-sdr.com/tag/zadig/

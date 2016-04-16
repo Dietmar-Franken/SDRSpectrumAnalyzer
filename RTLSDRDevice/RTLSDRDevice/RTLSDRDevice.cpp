@@ -59,6 +59,8 @@ time_t next_tick;
 time_t time_now;
 time_t exit_time = 0;
 
+FILE *file;
+
 #define CIC_TABLE_MAX 10
 int cic_9_tables[][10] = {
 	{0,},
@@ -280,11 +282,22 @@ void frequency_range(unsigned int startFrequency, unsigned int endFrequency, uns
 
 int Initialize(unsigned int startFrequency, unsigned int endFrequency, unsigned int stepSize)
 {
+	file = fopen("test.txt", "w");	
+	
+	fprintf(file, "debug");
+	fflush(file);
+
 	double (*window_fn)(int, int) = rectangle;
 
 	if (dev == NULL)
 	{
+		fprintf(file, "verbose_device_search start");
+		fflush(file);
+
 	int dev_index = verbose_device_search("0");	
+
+	fprintf(file, "dev_index: %i", dev_index);
+	fflush(file);
 
 	if (dev_index < 0) {
 		return -1;
@@ -294,6 +307,8 @@ int Initialize(unsigned int startFrequency, unsigned int endFrequency, unsigned 
 
 	if (r < 0) {
 		//fprintf(stderr, "Failed to open rtlsdr device #%d.\n", dev_index);
+		fprintf(file, "Failed to open rtlsdr device #%d.\n", dev_index);
+		fflush(file);
 		return -1;
 	}
 	}
@@ -304,10 +319,20 @@ int Initialize(unsigned int startFrequency, unsigned int endFrequency, unsigned 
 
 	verbose_reset_buffer(dev);
 
+	fprintf(file, "verbose_reset_buffer");
+	fflush(file);
+
 
 	frequency_range(startFrequency, endFrequency, stepSize);
 
+	fprintf(file, "frequency_range");
+	fflush(file);
+
 	rtlsdr_set_sample_rate(dev, (uint32_t)tunes[0].rate);
+
+	fprintf(file, "rtlsdr_set_sample_rate");
+	fflush(file);
+
 
 	sine_table(tunes[0].bin_e);
 	next_tick = time(NULL) + interval;
@@ -320,6 +345,8 @@ int Initialize(unsigned int startFrequency, unsigned int endFrequency, unsigned 
 	for (int i=0; i<length; i++) {
 		window_coefs[i] = (int)(256*window_fn(i, length));
 	}
+
+	fclose(file);
 
 	return 1;
 }

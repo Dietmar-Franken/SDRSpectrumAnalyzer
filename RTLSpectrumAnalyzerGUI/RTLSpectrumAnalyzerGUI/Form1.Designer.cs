@@ -39,6 +39,8 @@
             System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.Windows.Forms.DataVisualization.Charting.Series series5 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.Windows.Forms.DataVisualization.Charting.Title title2 = new System.Windows.Forms.DataVisualization.Charting.Title();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Series series6 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.chart2 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.button1 = new System.Windows.Forms.Button();
@@ -73,9 +75,11 @@
             this.radioButton2 = new System.Windows.Forms.RadioButton();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.chart3 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chart2)).BeginInit();
             this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.chart3)).BeginInit();
             this.SuspendLayout();
             // 
             // chart1
@@ -468,11 +472,27 @@
             this.checkBox1.UseVisualStyleBackColor = true;
             this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
+            // chart3
+            // 
+            chartArea3.Name = "ChartArea1";
+            this.chart3.ChartAreas.Add(chartArea3);
+            this.chart3.Location = new System.Drawing.Point(1181, 223);
+            this.chart3.Name = "chart3";
+            series6.ChartArea = "ChartArea1";
+            series6.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastLine;
+            series6.Name = "Series1";
+            series6.YValuesPerPoint = 2;
+            this.chart3.Series.Add(series6);
+            this.chart3.Size = new System.Drawing.Size(150, 87);
+            this.chart3.TabIndex = 32;
+            this.chart3.Text = "chart3";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1354, 741);
+            this.Controls.Add(this.chart3);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.label9);
             this.Controls.Add(this.label8);
@@ -505,6 +525,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.chart2)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.chart3)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -546,6 +567,7 @@
         private System.Windows.Forms.RadioButton radioButton2;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.DataVisualization.Charting.Chart chart3;
     }
 }
 
