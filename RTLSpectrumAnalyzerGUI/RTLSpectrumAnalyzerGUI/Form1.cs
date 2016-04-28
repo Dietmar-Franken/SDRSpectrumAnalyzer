@@ -217,8 +217,11 @@ namespace RTLSpectrumAnalyzerGUI
             FrequencyRange frequencyRange = new FrequencyRange(graph1LowerFrequency, graph1UpperFrequency);
             graph1FrequencyRanges.Push(frequencyRange);
 
-            AxisViewChanged(chart1, series1BinData.dataSeries, series1BinData.binArray, ref graph1LowerFrequency, ref graph1UpperFrequency, ref graph1BinFreqInc);
-            AxisViewChanged(chart1, series2BinData.dataSeries, series2BinData.binArray, ref graph1LowerFrequency, ref graph1UpperFrequency, ref graph1BinFreqInc);
+            if (series1BinData!=null)
+                AxisViewChanged(chart1, series1BinData.dataSeries, series1BinData.binArray, ref graph1LowerFrequency, ref graph1UpperFrequency, ref graph1BinFreqInc);
+
+            if (series2BinData!=null)
+                AxisViewChanged(chart1, series2BinData.dataSeries, series2BinData.binArray, ref graph1LowerFrequency, ref graph1UpperFrequency, ref graph1BinFreqInc);
         }
 
         private void button1_Click_1(object sender, EventArgs e)
@@ -233,10 +236,14 @@ namespace RTLSpectrumAnalyzerGUI
                 graph1LowerFrequency = frequencyRange.lower;
                 graph1UpperFrequency = frequencyRange.upper;
 
-                RangeChanged(chart1, series1BinData.dataSeries, series1BinData.binArray, lowerIndex, upperIndex, graph1LowerFrequency, ref graph1BinFreqInc);
-                RangeChanged(chart1, series2BinData.dataSeries, series2BinData.binArray, lowerIndex, upperIndex, graph1LowerFrequency, ref graph1BinFreqInc);
+                if (series1BinData != null)
+                    RangeChanged(chart1, series1BinData.dataSeries, series1BinData.binArray, lowerIndex, upperIndex, graph1LowerFrequency, ref graph1BinFreqInc);
 
-                GraphDifference(series1BinData, series2BinData);
+                if (series2BinData != null)
+                    RangeChanged(chart1, series2BinData.dataSeries, series2BinData.binArray, lowerIndex, upperIndex, graph1LowerFrequency, ref graph1BinFreqInc);
+
+                if (series1BinData != null && series2BinData != null)
+                    GraphDifference(series1BinData, series2BinData);
             }
         }
 
@@ -245,9 +252,14 @@ namespace RTLSpectrumAnalyzerGUI
             FrequencyRange frequencyRange = new FrequencyRange(graph2LowerFrequency, graph2UpperFrequency);
             graph2FrequencyRanges.Push(frequencyRange);
 
-            AxisViewChanged(chart2, series1BinData.dataSeries, series1BinData.avgBinArray, ref graph2LowerFrequency, ref graph2UpperFrequency, ref graph2BinFreqInc);
-            AxisViewChanged(chart2, series2BinData.dataSeries, series2BinData.avgBinArray, ref graph2LowerFrequency, ref graph2UpperFrequency, ref graph2BinFreqInc);
-            GraphDifference(series1BinData, series2BinData);
+            if (series1BinData != null)
+                AxisViewChanged(chart2, series1BinData.dataSeries, series1BinData.avgBinArray, ref graph2LowerFrequency, ref graph2UpperFrequency, ref graph2BinFreqInc);
+
+            if (series2BinData != null)
+                AxisViewChanged(chart2, series2BinData.dataSeries, series2BinData.avgBinArray, ref graph2LowerFrequency, ref graph2UpperFrequency, ref graph2BinFreqInc);
+
+            if (series1BinData != null && series2BinData != null)
+                GraphDifference(series1BinData, series2BinData);
         }
         
         private void button2_Click_2(object sender, EventArgs e)
@@ -262,10 +274,14 @@ namespace RTLSpectrumAnalyzerGUI
                 graph2LowerFrequency = frequencyRange.lower;
                 graph2UpperFrequency = frequencyRange.upper;
 
-                RangeChanged(chart2, series1BinData.dataSeries, series1BinData.avgBinArray, lowerIndex, upperIndex, graph2LowerFrequency, ref graph2BinFreqInc);
-                RangeChanged(chart2, series2BinData.dataSeries, series2BinData.avgBinArray, lowerIndex, upperIndex, graph2LowerFrequency, ref graph2BinFreqInc);
+                if (series1BinData != null)
+                    RangeChanged(chart2, series1BinData.dataSeries, series1BinData.avgBinArray, lowerIndex, upperIndex, graph2LowerFrequency, ref graph2BinFreqInc);
 
-                GraphDifference(series1BinData, series2BinData);
+                if (series2BinData != null)
+                    RangeChanged(chart2, series2BinData.dataSeries, series2BinData.avgBinArray, lowerIndex, upperIndex, graph2LowerFrequency, ref graph2BinFreqInc);
+
+                if (series1BinData != null && series2BinData != null)
+                    GraphDifference(series1BinData, series2BinData);
             }
         }
 

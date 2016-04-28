@@ -6,3 +6,4 @@ C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\ob
 C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\obj\x86\Release\RTLSpectrumAnalyzerGUI.csproj.GenerateResource.Cache
 C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\obj\x86\Release\RTLSpectrumAnalyzerGUI.exe
 C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\obj\x86\Release\RTLSpectrumAnalyzerGUI.pdb
+C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\obj\x86\Release\RTLSpectrumAnalyzerGUI.csprojResolveAssemblyReference.cache
