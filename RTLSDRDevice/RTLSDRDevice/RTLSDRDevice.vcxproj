@@ -63,7 +63,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>rtlsdr.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>..\..\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\bin\x86\Debug\$(ProjectName).dll</OutputFile>
+      <OutputFile>..\..\Build\$(ProjectName).dll</OutputFile>
       <ModuleDefinitionFile>RTLSDRDevice.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -80,7 +80,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>rtlsdr.lib</AdditionalDependencies>
-      <OutputFile>..\..\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\bin\x86\Release\$(ProjectName).dll</OutputFile>
+      <OutputFile>..\..\Build\$(ProjectName).dll</OutputFile>
       <ModuleDefinitionFile>RTLSDRDevice.def</ModuleDefinitionFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>

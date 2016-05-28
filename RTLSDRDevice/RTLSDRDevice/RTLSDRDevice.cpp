@@ -59,8 +59,6 @@ time_t next_tick;
 time_t time_now;
 time_t exit_time = 0;
 
-FILE *file;
-
 #define CIC_TABLE_MAX 10
 int cic_9_tables[][10] = {
 	{0,},
@@ -190,7 +188,7 @@ void frequency_range(unsigned int startFrequency, unsigned int endFrequency, uns
 	double bin_size;
 	struct tuning_state *ts;
 
-	double crop = 0;
+	double crop = 0.0;
 	
 	lower = startFrequency;
 	upper = endFrequency;
@@ -281,23 +279,12 @@ void frequency_range(unsigned int startFrequency, unsigned int endFrequency, uns
 }
 
 int Initialize(unsigned int startFrequency, unsigned int endFrequency, unsigned int stepSize)
-{
-	file = fopen("test.txt", "w");	
-	
-	fprintf(file, "debug");
-	fflush(file);
-
+{	
 	double (*window_fn)(int, int) = rectangle;
 
 	if (dev == NULL)
-	{
-		fprintf(file, "verbose_device_search start");
-		fflush(file);
-
-	int dev_index = verbose_device_search("0");	
-
-	fprintf(file, "dev_index: %i", dev_index);
-	fflush(file);
+	{		
+	int dev_index = verbose_device_search("0");		
 
 	if (dev_index < 0) {
 		return -1;
@@ -306,9 +293,7 @@ int Initialize(unsigned int startFrequency, unsigned int endFrequency, unsigned 
 	int r = rtlsdr_open(&dev, (uint32_t)dev_index);
 
 	if (r < 0) {
-		//fprintf(stderr, "Failed to open rtlsdr device #%d.\n", dev_index);
-		fprintf(file, "Failed to open rtlsdr device #%d.\n", dev_index);
-		fflush(file);
+		//fprintf(stderr, "Failed to open rtlsdr device #%d.\n", dev_index);		
 		return -1;
 	}
 	}
@@ -317,22 +302,11 @@ int Initialize(unsigned int startFrequency, unsigned int endFrequency, unsigned 
 
 	verbose_ppm_set(dev, ppm_error);
 
-	verbose_reset_buffer(dev);
-
-	fprintf(file, "verbose_reset_buffer");
-	fflush(file);
-
+	verbose_reset_buffer(dev);	
 
 	frequency_range(startFrequency, endFrequency, stepSize);
-
-	fprintf(file, "frequency_range");
-	fflush(file);
-
-	rtlsdr_set_sample_rate(dev, (uint32_t)tunes[0].rate);
-
-	fprintf(file, "rtlsdr_set_sample_rate");
-	fflush(file);
-
+	
+	rtlsdr_set_sample_rate(dev, (uint32_t)tunes[0].rate);	
 
 	sine_table(tunes[0].bin_e);
 	next_tick = time(NULL) + interval;
@@ -345,8 +319,6 @@ int Initialize(unsigned int startFrequency, unsigned int endFrequency, unsigned 
 	for (int i=0; i<length; i++) {
 		window_coefs[i] = (int)(256*window_fn(i, length));
 	}
-
-	fclose(file);
 
 	return 1;
 }
@@ -575,7 +547,7 @@ void scanner(void)
 	}
 }
 
-void csv_dbm(struct tuning_state *ts, double* buffer, long offset)
+void csv_dbm(struct tuning_state *ts, float* buffer, long offset)
 {
 	int i, len, ds, i1, i2, bw2, bin_count;
 	long tmp;
@@ -595,15 +567,14 @@ void csv_dbm(struct tuning_state *ts, double* buffer, long offset)
 	}
 	/* Hz low, Hz high, Hz step, samples, dbm, dbm, ... */
 	bin_count = (int)((double)len * (1.0 - ts->crop));
-	bw2 = (int)(((double)ts->rate * (double)bin_count) / (len * 2 * ds));
-	////fprintf(file, "%i, %i, %.2f, %i, ", ts->freq - bw2, ts->freq + bw2,(double)ts->rate / (double)(len*ds), ts->samples);
+	bw2 = (int)(((double)ts->rate * (double)bin_count) / (len * 2 * ds));	
 	// something seems off with the dbm math
 	i1 = 0 + (int)((double)len * ts->crop * 0.5);
 	i2 = (len-1) - (int)((double)len * ts->crop * 0.5);
 	
 	int binCount = 0;		
 
-	double* bufferPtr = &buffer[offset];
+	float* bufferPtr = &buffer[offset];
 	
 	for (i=i1; i<=i2; i++)
 	{
@@ -631,7 +602,7 @@ unsigned int GetBufferSize()
 	return length;
 }
 
-void GetBins(double *buffer)
+void GetBins(float *buffer)
 {
 		scanner();		
 

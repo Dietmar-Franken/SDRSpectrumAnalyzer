@@ -41,6 +41,7 @@
             System.Windows.Forms.DataVisualization.Charting.Title title2 = new System.Windows.Forms.DataVisualization.Charting.Title();
             System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             System.Windows.Forms.DataVisualization.Charting.Series series6 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series7 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.chart2 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.button1 = new System.Windows.Forms.Button();
@@ -76,20 +77,51 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.chart3 = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.button11 = new System.Windows.Forms.Button();
+            this.button12 = new System.Windows.Forms.Button();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.pictureBox2 = new System.Windows.Forms.PictureBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.textBox7 = new System.Windows.Forms.TextBox();
+            this.textBox8 = new System.Windows.Forms.TextBox();
+            this.label12 = new System.Windows.Forms.Label();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.radioButton5 = new System.Windows.Forms.RadioButton();
+            this.radioButton4 = new System.Windows.Forms.RadioButton();
+            this.radioButton3 = new System.Windows.Forms.RadioButton();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.button13 = new System.Windows.Forms.Button();
+            this.checkBox2 = new System.Windows.Forms.CheckBox();
+            this.textBox10 = new System.Windows.Forms.TextBox();
+            this.textBox9 = new System.Windows.Forms.TextBox();
+            this.label14 = new System.Windows.Forms.Label();
+            this.label13 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chart2)).BeginInit();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chart3)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
+            this.groupBox2.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // chart1
             // 
+            chartArea1.AlignmentOrientation = ((System.Windows.Forms.DataVisualization.Charting.AreaAlignmentOrientations)((System.Windows.Forms.DataVisualization.Charting.AreaAlignmentOrientations.Vertical | System.Windows.Forms.DataVisualization.Charting.AreaAlignmentOrientations.Horizontal)));
+            chartArea1.InnerPlotPosition.Auto = false;
+            chartArea1.InnerPlotPosition.Height = 76.98477F;
+            chartArea1.InnerPlotPosition.Width = 92.46455F;
+            chartArea1.InnerPlotPosition.X = 6.26869F;
+            chartArea1.InnerPlotPosition.Y = 5.80952F;
             chartArea1.Name = "ChartArea1";
             this.chart1.ChartAreas.Add(chartArea1);
             legend1.Name = "Legend1";
             this.chart1.Legends.Add(legend1);
-            this.chart1.Location = new System.Drawing.Point(12, 103);
+            this.chart1.Location = new System.Drawing.Point(22, 107);
+            this.chart1.Margin = new System.Windows.Forms.Padding(100, 3, 3, 3);
             this.chart1.Name = "chart1";
+            this.chart1.Padding = new System.Windows.Forms.Padding(500, 0, 0, 0);
             series1.ChartArea = "ChartArea1";
             series1.Legend = "Legend1";
             series1.Name = "Series1";
@@ -99,7 +131,7 @@
             series2.Name = "Series2";
             this.chart1.Series.Add(series1);
             this.chart1.Series.Add(series2);
-            this.chart1.Size = new System.Drawing.Size(1144, 297);
+            this.chart1.Size = new System.Drawing.Size(1086, 209);
             this.chart1.TabIndex = 0;
             this.chart1.Text = "chart1";
             title1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -111,11 +143,16 @@
             // 
             // chart2
             // 
+            chartArea2.InnerPlotPosition.Auto = false;
+            chartArea2.InnerPlotPosition.Height = 79.54841F;
+            chartArea2.InnerPlotPosition.Width = 92.46309F;
+            chartArea2.InnerPlotPosition.X = 6.26993F;
+            chartArea2.InnerPlotPosition.Y = 5.12816F;
             chartArea2.Name = "ChartArea1";
             this.chart2.ChartAreas.Add(chartArea2);
             legend2.Name = "Legend1";
             this.chart2.Legends.Add(legend2);
-            this.chart2.Location = new System.Drawing.Point(12, 404);
+            this.chart2.Location = new System.Drawing.Point(23, 402);
             this.chart2.Name = "chart2";
             series3.ChartArea = "ChartArea1";
             series3.Legend = "Legend1";
@@ -130,7 +167,7 @@
             this.chart2.Series.Add(series3);
             this.chart2.Series.Add(series4);
             this.chart2.Series.Add(series5);
-            this.chart2.Size = new System.Drawing.Size(1144, 297);
+            this.chart2.Size = new System.Drawing.Size(1086, 222);
             this.chart2.TabIndex = 1;
             this.chart2.Text = "chart2";
             title2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -141,7 +178,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(1180, 356);
+            this.button1.Location = new System.Drawing.Point(1113, 351);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(115, 39);
             this.button1.TabIndex = 2;
@@ -151,7 +188,7 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(1180, 656);
+            this.button2.Location = new System.Drawing.Point(1112, 666);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(115, 39);
             this.button2.TabIndex = 3;
@@ -221,7 +258,7 @@
             // button3
             // 
             this.button3.Enabled = false;
-            this.button3.Location = new System.Drawing.Point(1181, 118);
+            this.button3.Location = new System.Drawing.Point(1114, 104);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(134, 39);
             this.button3.TabIndex = 10;
@@ -243,7 +280,7 @@
             // button5
             // 
             this.button5.Enabled = false;
-            this.button5.Location = new System.Drawing.Point(1181, 163);
+            this.button5.Location = new System.Drawing.Point(1114, 149);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(134, 39);
             this.button5.TabIndex = 12;
@@ -274,7 +311,7 @@
             // 
             // button6
             // 
-            this.button6.Location = new System.Drawing.Point(1179, 470);
+            this.button6.Location = new System.Drawing.Point(1112, 456);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(134, 39);
             this.button6.TabIndex = 16;
@@ -284,7 +321,7 @@
             // 
             // button7
             // 
-            this.button7.Location = new System.Drawing.Point(1179, 425);
+            this.button7.Location = new System.Drawing.Point(1112, 411);
             this.button7.Name = "button7";
             this.button7.Size = new System.Drawing.Size(134, 39);
             this.button7.TabIndex = 15;
@@ -294,7 +331,7 @@
             // 
             // button8
             // 
-            this.button8.Location = new System.Drawing.Point(1179, 558);
+            this.button8.Location = new System.Drawing.Point(1112, 544);
             this.button8.Name = "button8";
             this.button8.Size = new System.Drawing.Size(134, 39);
             this.button8.TabIndex = 18;
@@ -304,7 +341,7 @@
             // 
             // button9
             // 
-            this.button9.Location = new System.Drawing.Point(1179, 513);
+            this.button9.Location = new System.Drawing.Point(1112, 499);
             this.button9.Name = "button9";
             this.button9.Size = new System.Drawing.Size(134, 39);
             this.button9.TabIndex = 17;
@@ -326,7 +363,7 @@
             // textBox5
             // 
             this.textBox5.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBox5.Location = new System.Drawing.Point(802, 28);
+            this.textBox5.Location = new System.Drawing.Point(571, 28);
             this.textBox5.Name = "textBox5";
             this.textBox5.Size = new System.Drawing.Size(110, 26);
             this.textBox5.TabIndex = 20;
@@ -337,7 +374,7 @@
             this.label5.AutoSize = true;
             this.label5.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.Location = new System.Drawing.Point(665, 29);
+            this.label5.Location = new System.Drawing.Point(434, 29);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(131, 22);
             this.label5.TabIndex = 19;
@@ -346,7 +383,7 @@
             // textBox6
             // 
             this.textBox6.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBox6.Location = new System.Drawing.Point(802, 70);
+            this.textBox6.Location = new System.Drawing.Point(571, 70);
             this.textBox6.Name = "textBox6";
             this.textBox6.Size = new System.Drawing.Size(110, 26);
             this.textBox6.TabIndex = 22;
@@ -357,7 +394,7 @@
             this.label6.AutoSize = true;
             this.label6.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(665, 71);
+            this.label6.Location = new System.Drawing.Point(434, 71);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(131, 22);
             this.label6.TabIndex = 23;
@@ -476,22 +513,232 @@
             // 
             chartArea3.Name = "ChartArea1";
             this.chart3.ChartAreas.Add(chartArea3);
-            this.chart3.Location = new System.Drawing.Point(1181, 223);
+            this.chart3.Location = new System.Drawing.Point(12, 341);
             this.chart3.Name = "chart3";
             series6.ChartArea = "ChartArea1";
-            series6.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastLine;
             series6.Name = "Series1";
             series6.YValuesPerPoint = 2;
+            series7.ChartArea = "ChartArea1";
+            series7.Color = System.Drawing.Color.Red;
+            series7.Name = "Series2";
             this.chart3.Series.Add(series6);
-            this.chart3.Size = new System.Drawing.Size(150, 87);
+            this.chart3.Series.Add(series7);
+            this.chart3.Size = new System.Drawing.Size(76, 23);
             this.chart3.TabIndex = 32;
             this.chart3.Text = "chart3";
+            // 
+            // button11
+            // 
+            this.button11.Location = new System.Drawing.Point(1113, 585);
+            this.button11.Name = "button11";
+            this.button11.Size = new System.Drawing.Size(115, 39);
+            this.button11.TabIndex = 33;
+            this.button11.Text = "Series 1 Clear";
+            this.button11.UseVisualStyleBackColor = true;
+            this.button11.Click += new System.EventHandler(this.button11_Click);
+            // 
+            // button12
+            // 
+            this.button12.Location = new System.Drawing.Point(1113, 625);
+            this.button12.Name = "button12";
+            this.button12.Size = new System.Drawing.Size(115, 39);
+            this.button12.TabIndex = 34;
+            this.button12.Text = "Series 2 Clear";
+            this.button12.UseVisualStyleBackColor = true;
+            this.button12.Click += new System.EventHandler(this.button12_Click);
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Location = new System.Drawing.Point(112, 322);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(832, 74);
+            this.pictureBox1.TabIndex = 35;
+            this.pictureBox1.TabStop = false;
+            // 
+            // pictureBox2
+            // 
+            this.pictureBox2.Location = new System.Drawing.Point(112, 630);
+            this.pictureBox2.Name = "pictureBox2";
+            this.pictureBox2.Size = new System.Drawing.Size(832, 62);
+            this.pictureBox2.TabIndex = 36;
+            this.pictureBox2.TabStop = false;
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.label11.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label11.Location = new System.Drawing.Point(688, 31);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(166, 22);
+            this.label11.TabIndex = 40;
+            this.label11.Text = "Series 1 Avg Strength";
+            // 
+            // textBox7
+            // 
+            this.textBox7.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBox7.Location = new System.Drawing.Point(862, 29);
+            this.textBox7.Name = "textBox7";
+            this.textBox7.Size = new System.Drawing.Size(68, 26);
+            this.textBox7.TabIndex = 39;
+            this.textBox7.Text = "0";
+            // 
+            // textBox8
+            // 
+            this.textBox8.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBox8.Location = new System.Drawing.Point(863, 69);
+            this.textBox8.Name = "textBox8";
+            this.textBox8.Size = new System.Drawing.Size(66, 26);
+            this.textBox8.TabIndex = 38;
+            this.textBox8.Text = "0";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.label12.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label12.Location = new System.Drawing.Point(688, 71);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(170, 22);
+            this.label12.TabIndex = 37;
+            this.label12.Text = "Series 2 Avg Strength:";
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.radioButton5);
+            this.groupBox2.Controls.Add(this.radioButton4);
+            this.groupBox2.Controls.Add(this.radioButton3);
+            this.groupBox2.Location = new System.Drawing.Point(1117, 202);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(147, 94);
+            this.groupBox2.TabIndex = 41;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Waterfall Mode:";
+            // 
+            // radioButton5
+            // 
+            this.radioButton5.AutoSize = true;
+            this.radioButton5.Location = new System.Drawing.Point(7, 21);
+            this.radioButton5.Name = "radioButton5";
+            this.radioButton5.Size = new System.Drawing.Size(39, 17);
+            this.radioButton5.TabIndex = 34;
+            this.radioButton5.Text = "Off";
+            this.radioButton5.UseVisualStyleBackColor = true;
+            this.radioButton5.CheckedChanged += new System.EventHandler(this.radioButton5_CheckedChanged);
+            // 
+            // radioButton4
+            // 
+            this.radioButton4.AutoSize = true;
+            this.radioButton4.Cursor = System.Windows.Forms.Cursors.Arrow;
+            this.radioButton4.Enabled = false;
+            this.radioButton4.Location = new System.Drawing.Point(8, 61);
+            this.radioButton4.Name = "radioButton4";
+            this.radioButton4.Size = new System.Drawing.Size(135, 30);
+            this.radioButton4.TabIndex = 33;
+            this.radioButton4.Text = "Near Strength Increase\r\n(Series 2 - 1)";
+            this.radioButton4.UseVisualStyleBackColor = true;
+            this.radioButton4.CheckedChanged += new System.EventHandler(this.radioButton4_CheckedChanged);
+            // 
+            // radioButton3
+            // 
+            this.radioButton3.AutoSize = true;
+            this.radioButton3.Checked = true;
+            this.radioButton3.Location = new System.Drawing.Point(7, 41);
+            this.radioButton3.Name = "radioButton3";
+            this.radioButton3.Size = new System.Drawing.Size(118, 17);
+            this.radioButton3.TabIndex = 32;
+            this.radioButton3.TabStop = true;
+            this.radioButton3.Text = "Frequency Strength";
+            this.radioButton3.UseVisualStyleBackColor = true;
+            this.radioButton3.CheckedChanged += new System.EventHandler(this.radioButton3_CheckedChanged);
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.button13);
+            this.groupBox3.Controls.Add(this.checkBox2);
+            this.groupBox3.Controls.Add(this.textBox10);
+            this.groupBox3.Controls.Add(this.textBox9);
+            this.groupBox3.Controls.Add(this.label14);
+            this.groupBox3.Controls.Add(this.label13);
+            this.groupBox3.Location = new System.Drawing.Point(950, 325);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(155, 70);
+            this.groupBox3.TabIndex = 42;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Waterfall Range";
+            // 
+            // button13
+            // 
+            this.button13.Location = new System.Drawing.Point(99, 40);
+            this.button13.Name = "button13";
+            this.button13.Size = new System.Drawing.Size(50, 24);
+            this.button13.TabIndex = 5;
+            this.button13.Text = "Set";
+            this.button13.UseVisualStyleBackColor = true;
+            this.button13.Click += new System.EventHandler(this.button13_Click);
+            // 
+            // checkBox2
+            // 
+            this.checkBox2.AutoSize = true;
+            this.checkBox2.Location = new System.Drawing.Point(101, 21);
+            this.checkBox2.Name = "checkBox2";
+            this.checkBox2.Size = new System.Drawing.Size(48, 17);
+            this.checkBox2.TabIndex = 4;
+            this.checkBox2.Text = "Auto";
+            this.checkBox2.UseVisualStyleBackColor = true;
+            this.checkBox2.CheckedChanged += new System.EventHandler(this.checkBox2_CheckedChanged);
+            // 
+            // textBox10
+            // 
+            this.textBox10.Location = new System.Drawing.Point(38, 43);
+            this.textBox10.Name = "textBox10";
+            this.textBox10.Size = new System.Drawing.Size(43, 20);
+            this.textBox10.TabIndex = 3;
+            this.textBox10.Text = "-10";
+            this.textBox10.TextChanged += new System.EventHandler(this.textBox10_TextChanged);
+            // 
+            // textBox9
+            // 
+            this.textBox9.Location = new System.Drawing.Point(38, 20);
+            this.textBox9.Name = "textBox9";
+            this.textBox9.Size = new System.Drawing.Size(43, 20);
+            this.textBox9.TabIndex = 2;
+            this.textBox9.Text = "-50";
+            this.textBox9.TextChanged += new System.EventHandler(this.textBox9_TextChanged);
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(10, 45);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(30, 13);
+            this.label14.TabIndex = 1;
+            this.label14.Text = "Max:";
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(10, 24);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(27, 13);
+            this.label13.TabIndex = 0;
+            this.label13.Text = "Min:";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1354, 741);
+            this.ClientSize = new System.Drawing.Size(1276, 741);
+            this.Controls.Add(this.groupBox3);
+            this.Controls.Add(this.groupBox2);
+            this.Controls.Add(this.label11);
+            this.Controls.Add(this.textBox7);
+            this.Controls.Add(this.textBox8);
+            this.Controls.Add(this.label12);
+            this.Controls.Add(this.pictureBox2);
+            this.Controls.Add(this.pictureBox1);
+            this.Controls.Add(this.button12);
+            this.Controls.Add(this.button11);
             this.Controls.Add(this.chart3);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.label9);
@@ -526,6 +773,12 @@
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chart3)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -568,6 +821,25 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.DataVisualization.Charting.Chart chart3;
+        private System.Windows.Forms.Button button11;
+        private System.Windows.Forms.Button button12;
+        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.PictureBox pictureBox2;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.TextBox textBox7;
+        private System.Windows.Forms.TextBox textBox8;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.RadioButton radioButton4;
+        private System.Windows.Forms.RadioButton radioButton3;
+        private System.Windows.Forms.RadioButton radioButton5;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.CheckBox checkBox2;
+        private System.Windows.Forms.TextBox textBox10;
+        private System.Windows.Forms.TextBox textBox9;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Button button13;
     }
 }
 

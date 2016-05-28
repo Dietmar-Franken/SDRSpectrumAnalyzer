@@ -29,5 +29,5 @@
 
 	RTLSDRDEVICE_API void Initialize(unsigned int startFrequency, unsigned int endFrequency, unsigned int stepSize);    
 	RTLSDRDEVICE_API unsigned int GetBufferSize();    	
-	RTLSDRDEVICE_API void GetBins(double* binsArray);
+	RTLSDRDEVICE_API void GetBins(float* binsArray);
 

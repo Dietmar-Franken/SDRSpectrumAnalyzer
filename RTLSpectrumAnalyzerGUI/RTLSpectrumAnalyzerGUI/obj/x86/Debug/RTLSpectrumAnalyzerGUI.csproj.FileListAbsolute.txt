@@ -1,8 +1,6 @@
 C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\bin\x86\Debug\RTLSpectrumAnalyzerGUI.exe.config
 C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\bin\x86\Debug\RTLSpectrumAnalyzerGUI.exe
 C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\bin\x86\Debug\RTLSpectrumAnalyzerGUI.pdb
-C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\obj\x86\Debug\RTLSpectrumAnalyzerGUI.Form1.resources
-C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\obj\x86\Debug\RTLSpectrumAnalyzerGUI.Properties.Resources.resources
-C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\obj\x86\Debug\RTLSpectrumAnalyzerGUI.csproj.GenerateResource.Cache
-C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\obj\x86\Debug\RTLSpectrumAnalyzerGUI.exe
-C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\obj\x86\Debug\RTLSpectrumAnalyzerGUI.pdb
+C:\projects\Build\RTLSpectrumAnalyzerGUI.exe.config
+C:\projects\Build\RTLSpectrumAnalyzerGUI.exe
+C:\projects\Build\RTLSpectrumAnalyzerGUI.pdb
