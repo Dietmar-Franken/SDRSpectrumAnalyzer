@@ -513,7 +513,7 @@
             // 
             chartArea3.Name = "ChartArea1";
             this.chart3.ChartAreas.Add(chartArea3);
-            this.chart3.Location = new System.Drawing.Point(12, 341);
+            this.chart3.Location = new System.Drawing.Point(1118, 302);
             this.chart3.Name = "chart3";
             series6.ChartArea = "ChartArea1";
             series6.Name = "Series1";
@@ -523,9 +523,10 @@
             series7.Name = "Series2";
             this.chart3.Series.Add(series6);
             this.chart3.Series.Add(series7);
-            this.chart3.Size = new System.Drawing.Size(76, 23);
+            this.chart3.Size = new System.Drawing.Size(146, 43);
             this.chart3.TabIndex = 32;
             this.chart3.Text = "chart3";
+            this.chart3.Visible = false;
             // 
             // button11
             // 
