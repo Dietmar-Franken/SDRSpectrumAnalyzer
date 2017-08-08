@@ -19,11 +19,11 @@ namespace RTLSpectrumAnalyzerGUI
 
         IntPtr Iptr = IntPtr.Zero;
         BitmapData bitmapData = null;
-        List<Color> colors;
+        static public List<Color> colors;
 
         WaterFallMode mode = WaterFallMode.Strength;
 
-        WaterFallRangeMode rangeMode = WaterFallRangeMode.Fixed;
+        WaterFallRangeMode rangeMode = WaterFallRangeMode.Auto;
 
         double minWaterFall = -50, maxWaterFall = -10;
 
@@ -229,7 +229,9 @@ namespace RTLSpectrumAnalyzerGUI
 
         public void DrawLine(float[] array, long lowerIndex, long upperIndex)
         {
-            if (array.Length > 0)
+            double waterFallRange = maxWaterFall - minWaterFall;
+
+            if (array.Length > 0 && waterFallRange > 0)
             {
                 long graphBinCount = upperIndex - lowerIndex;
 
@@ -247,19 +249,17 @@ namespace RTLSpectrumAnalyzerGUI
                 double inc = (double)graphBinCount / Width;
 
                 double minStrength, maxStrength;
-                double normalizedColorRange;
+                double normalizedColorRange;                
 
-                double waterFallRange = maxWaterFall - minWaterFall;
-
-                //double frequencyScanMinStrength = 9999;
-                //double frequencyScanMaxStrength = -9999;
+                //double frequencyScanMinStrength = 99999999;
+                //double frequencyScanMaxStrength = -99999999;
 
                 int count;
                 int y = 0;
                 {
                     for (int x = 0; x < Width; x++)
                     {
-                        minStrength = 9999;
+                        minStrength = 99999999;
                         count = 0;
                         for (int j = (int)index; j < (int)(index + inc); j++)
                         {
@@ -272,7 +272,7 @@ namespace RTLSpectrumAnalyzerGUI
                         if (count == 0)
                             minStrength = array[(long)index];
 
-                        maxStrength = -9999;
+                        maxStrength = -99999999;
                         count = 0;
                         for (int j = (int)index; j < (int)(index + inc); j++)
                         {                            
@@ -322,7 +322,8 @@ namespace RTLSpectrumAnalyzerGUI
 
         public void DrawDeltaLine(float[] array1, float[] array2, long lowerIndex, long upperIndex)
         {
-            
+            if (nearStrengthDeltaRange > 0)
+            {
                 long graphBinCount = upperIndex - lowerIndex;
 
                 long lowerResGraphBinCount;
@@ -331,40 +332,40 @@ namespace RTLSpectrumAnalyzerGUI
                     lowerResGraphBinCount = Form1.MAXIMUM_GRAPH_BIN_COUNT;
                 else
                     lowerResGraphBinCount = graphBinCount;
-                
+
                 double index = lowerIndex;
 
                 LockBits();
 
-                double inc = (double) graphBinCount / Width;
+                double inc = (double)graphBinCount / Width;
 
                 double maxDelta, delta;
                 double normalizedColorRange;
 
-                //double frequencyScanMaxDelta = -9999;
+                //double frequencyScanMaxDelta = -99999999;
 
                 int count;
                 int y = 0;
                 {
                     for (int x = 0; x < Width; x++)
                     {
-                        maxDelta = -9999;
+                        maxDelta = -99999999;
                         count = 0;
                         for (int j = (int)index; j < (int)(index + inc); j++)
-                        {
-                            delta = array2[j] - array1[j];
+                        {                            
+                            delta = CalculateStrengthDifference(array1, array2, j);
 
                             if (delta > maxDelta)
-                                maxDelta = delta;                            
+                                maxDelta = delta;
 
                             count++;
                         }
 
-                        if (count==0)
-                            maxDelta = array2[(long)index] - array1[(long)index];
+                        if (count == 0)                            
+                            maxDelta = CalculateStrengthDifference(array1, array2, (long)index);                         
 
                         //if (maxDelta > frequencyScanMaxDelta)
-                            //frequencyScanMaxDelta = maxDelta;                        
+                        //frequencyScanMaxDelta = maxDelta;                        
 
                         normalizedColorRange = maxDelta / nearStrengthDeltaRange;
 
@@ -382,9 +383,10 @@ namespace RTLSpectrumAnalyzerGUI
                 }
 
                 //if (rangeMode == WaterFallRangeMode.Auto)
-                    //nearStrengthDeltaRange = frequencyScanMaxDelta;
+                //nearStrengthDeltaRange = frequencyScanMaxDelta;
 
-                UnlockBits();            
+                UnlockBits();
+            }
         }
 
         private void ScrollPictureBox()
@@ -402,18 +404,105 @@ namespace RTLSpectrumAnalyzerGUI
             g.Dispose();
         }
 
+        static public double GetSurroundNoiseFloorStrength(float[] array1, long frequencyIndex, long width)
+        {
+            if (frequencyIndex < width/2)
+            {
+                width = width / 2 + (width / 2 - frequencyIndex);
+
+                frequencyIndex = width / 2;
+            }
+
+            if (frequencyIndex + width/2 >= array1.Length)
+            {
+                width = ((array1.Length - frequencyIndex) * 2);
+
+                width = width / 2 + (width / 2 - (array1.Length - frequencyIndex));
+
+                frequencyIndex = array1.Length - width / 2;
+            }
+
+            double totalStrength = 0;
+
+            for (long i = frequencyIndex - width/2; i < frequencyIndex + width / 2; i++)
+            {
+                totalStrength += array1[i];
+            }            
+
+            return totalStrength /= width;
+        }
+
+        static public double CalculateStrengthDifference(float[] array1, float[] array2, long frequencyIndex)
+        {
+            if (array1[frequencyIndex] == 0)
+                return 0;
+
+            double dif = (array2[frequencyIndex] - array1[frequencyIndex]);
+
+            if (dif<0)
+                return dif;
+
+            /*double array1NoiseFloor = GetSurroundNoiseFloorStrength(array1, frequencyIndex, 20);
+
+            double array2NoiseFloor = GetSurroundNoiseFloorStrength(array2, frequencyIndex, 20);
+
+            double strength1 = array1[frequencyIndex] - array1NoiseFloor;
+
+            double strength2 = array2[frequencyIndex] - array2NoiseFloor;
+
+            if (strength2 < 0)
+                return strength2;
+
+            dif = strength2 - strength1;
+            */
+
+            /*double noiseFloorDif = array2NoiseFloor - array1NoiseFloor;
+
+            dif -= noiseFloorDif;
+            */
+
+            ////double ratio = dif / strength2;
+
+            double ratio = dif / array1[frequencyIndex];
+            
+
+            ////return ratio * Math.Abs(strength2) + ratio * (Math.Abs(strength2) /100);
+
+            return Math.Abs(dif) + ratio * Form1.series2Max*0.01;
+        }
+
+        static public double CalculateStrengthDifference2(float[] array1, float[] array2, long frequencyIndex)
+        {
+            if (array1[frequencyIndex] == 0)
+                return 0;
+
+            double dif = (array2[frequencyIndex] - array1[frequencyIndex]);
+
+            /*double array1NoiseFloor = GetSurroundNoiseFloorStrength(array1, frequencyIndex, 100);
+
+            double array2NoiseFloor = GetSurroundNoiseFloorStrength(array2, frequencyIndex, 100);
+
+            double noiseFloorDif = array2NoiseFloor - array1NoiseFloor;
+
+            double dif -= noiseFloorDif;
+            */
+
+            return dif;
+        }
+
+
         public void CalculateRanges(float[] array1, float[] array2)
         {
             if (rangeMode == WaterFallRangeMode.Auto)
             {
                 if (mode == WaterFallMode.Strength)
                 {
-                    minWaterFall = 9999;
-                    maxWaterFall = -9999;
+                    minWaterFall = 9999999999;
+                    maxWaterFall = -9999999999;
 
                     for (int i = 0; i < array1.Length; i++)
                     {
-                        if (!Double.IsNaN(array1[i]) && array1[i] > -100 && array1[i] < 100)
+                        if (!Double.IsNaN(array1[i]))//// && array1[i] > -1000000 && array1[i] < 1000000000)
                         {
                             if (array1[i] < minWaterFall)
                                 minWaterFall = array1[i];
@@ -428,14 +517,15 @@ namespace RTLSpectrumAnalyzerGUI
                     {
                         if (array1.Length == array2.Length && array1.Length > 0)
                         {
-                            nearStrengthDeltaRange = -9999;
+                            nearStrengthDeltaRange = -99999999;
                             double delta;
 
                             for (int i = 0; i < array1.Length; i++)
                             {
-                                if (!Double.IsNaN(array1[i]) && array1[i] > -100 && array1[i] < 100 && !Double.IsNaN(array2[i]) && array2[i] > -100 && array2[i] < 100)
-                                {
-                                    delta = array2[i] - array1[i];
+                            ////if (!Double.IsNaN(array1[i]) && array1[i] > -10000000 && array1[i] < 10000000 && !Double.IsNaN(array2[i]) && array2[i] > -1000000 && array2[i] < 10000000)
+                            if (!Double.IsNaN(array1[i]) && !Double.IsNaN(array2[i]))
+                            {
+                                delta = CalculateStrengthDifference(array1, array2, i);
 
                                     if (delta > nearStrengthDeltaRange)
                                         nearStrengthDeltaRange = delta;

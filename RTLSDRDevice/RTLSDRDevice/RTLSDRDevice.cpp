@@ -19,6 +19,8 @@ static rtlsdr_dev_t *dev = NULL;
 
 #define M_PI       3.14159265358979323846
 
+bool useDB = false;
+
 struct tuning_state
 /* one per tuning range */
 {
@@ -38,6 +40,9 @@ struct tuning_state
 	//int *comp_fir;
 	//pthread_rwlock_t buf_lock;
 	//pthread_mutex_t buf_mutex;
+
+	int totalMagnitude;
+	float avgMagnitude;
 };
 
 /* 3000 is enough for 3GHz b/w worst case */
@@ -300,6 +305,8 @@ int Initialize(unsigned int startFrequency, unsigned int endFrequency, unsigned 
 
 	verbose_auto_gain(dev);
 
+	////verbose_gain_set(dev, 800);
+
 	verbose_ppm_set(dev, ppm_error);
 
 	verbose_reset_buffer(dev);	
@@ -307,6 +314,9 @@ int Initialize(unsigned int startFrequency, unsigned int endFrequency, unsigned 
 	frequency_range(startFrequency, endFrequency, stepSize);
 	
 	rtlsdr_set_sample_rate(dev, (uint32_t)tunes[0].rate);	
+
+
+	////rtlsdr_set_sample_rate(dev, 2500000);
 
 	sine_table(tunes[0].bin_e);
 	next_tick = time(NULL) + interval;
@@ -468,6 +478,27 @@ long real_conj(int16_t real, int16_t imag)
 	return ((long)real*(long)real + (long)imag*(long)imag);
 }
 
+int GetAverageMagnitude(tuning_state *ts)
+{	
+	int iValue, qValue;
+	int totalMagnitude = 0;
+
+	int samples = ts->buf_len / 2;
+
+	for (int i = 0; i < ts->buf_len; i+=2)
+	{
+		iValue = ts->buf8[i]-127;
+		qValue = ts->buf8[i+1] - 127;
+
+		totalMagnitude += iValue*iValue + qValue*qValue;
+	}
+
+	ts->totalMagnitude = totalMagnitude;
+	ts->avgMagnitude = totalMagnitude / samples;
+
+	return ts->avgMagnitude;
+}
+
 void scanner(void)
 {
 	int i, j, j2, f, n_read, offset, bin_e, bin_len, buf_len, ds, ds_p;
@@ -483,6 +514,9 @@ void scanner(void)
 		if (f != ts->freq) {
 			retune(dev, ts->freq);}
 		rtlsdr_read_sync(dev, ts->buf8, buf_len, &n_read);
+
+		GetAverageMagnitude(ts);
+
 		if (n_read != buf_len) {
 			fprintf(stderr, "Error: dropped samples.\n");}
 		/* rms */
@@ -552,6 +586,8 @@ void csv_dbm(struct tuning_state *ts, float* buffer, long offset)
 	int i, len, ds, i1, i2, bw2, bin_count;
 	long tmp;
 	double dbm;
+	bool usingDB = useDB;
+
 	len = 1 << ts->bin_e;
 	ds = ts->downsample;
 	/* fix FFT stuff quirks */
@@ -579,11 +615,19 @@ void csv_dbm(struct tuning_state *ts, float* buffer, long offset)
 	for (i=i1; i<=i2; i++)
 	{
 		dbm  = (double)ts->avg[i];
-		dbm /= (double)ts->rate;
-		dbm /= (double)ts->samples;
-		dbm  = 10 * log10(dbm);	
+
+		if (usingDB)
+		{
+			dbm /= (double)ts->rate;
+			dbm /= (double)ts->samples;
+			dbm  = 10 * log10(dbm);			
+
+			////dbm *= 1000;
+		}
 
 		bufferPtr[binCount++] = dbm;
+
+		//bufferPtr[binCount++] = dbm;
 	}
 	
 	for (i=0; i<len; i++) {
@@ -612,6 +656,41 @@ void GetBins(float *buffer)
 			csv_dbm(&tunes[i], buffer, i*length);
 			length = 1 << tunes[i].bin_e;
 		}				
+}
+
+
+int GetTotalMagnitude()
+{
+	int totalMagnitude = 0;
+
+	for (int i = 0; i<tune_count; i++)
+	{
+		totalMagnitude += tunes[i].totalMagnitude;		
+	}
+
+	return totalMagnitude;
+}
+
+
+int GetAvgMagnitude()
+{
+	int avgMagnitude = 0;
+
+	for (int i = 0; i<tune_count; i++)
+	{
+		avgMagnitude += tunes[i].totalMagnitude;
+	}
+
+	return avgMagnitude/tune_count;
+}
+
+
+int SetUseDB(int value)
+{
+	useDB = value;
+	//useDB = true;
+
+	return 1;
 }
 
 

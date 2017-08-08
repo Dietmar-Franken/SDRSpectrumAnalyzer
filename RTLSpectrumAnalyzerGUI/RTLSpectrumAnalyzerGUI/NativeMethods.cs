@@ -30,6 +30,12 @@ namespace RTLSpectrumAnalyzerGUI
         [DllImport(LibRtlSdr, EntryPoint = "GetBins", CallingConvention = CallingConvention.Cdecl)]
         public static extern void GetBins(float[] binArray);
 
+        [DllImport(LibRtlSdr, EntryPoint = "GetTotalMagnitude", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int GetTotalMagnitude();
+
+        [DllImport(LibRtlSdr, EntryPoint = "SetUseDB", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int SetUseDB(int value);
+
         [DllImport(LibRtlSdr, EntryPoint = "get_device_count", CallingConvention = CallingConvention.Cdecl)]
         public static extern uint get_device_count();
 

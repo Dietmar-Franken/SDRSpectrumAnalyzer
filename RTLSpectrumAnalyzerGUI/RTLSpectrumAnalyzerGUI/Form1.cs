@@ -38,7 +38,7 @@ using System.IO;
 using System.Threading.Tasks;
 
 namespace RTLSpectrumAnalyzerGUI
-{
+{    
     public partial class Form1 : Form
     {
         public const long MAXIMUM_GRAPH_BIN_COUNT = 100000;
@@ -67,15 +67,34 @@ namespace RTLSpectrumAnalyzerGUI
 
         bool newData = false;
 
-        double minAvgStrength = 9999;
-        double maxAvgStrength = -9999;
+        double minAvgStrength = 99999999;
+        double maxAvgStrength = -99999999;
 
         Waterfall waterFall, waterFallAvg;
 
         double prevWaterFallMinimum;
         double prevWaterFallMaximum;
         double prevNearStrengthDeltaRange;
+       
+
+        float avgTotalMagnitude;
+        int magnitudeBufferCount = 0;
+
+        long[] magnitudeBuffer = new long[10];
+
+        bool chart3RangeSet = false;
+
+        double series1MinYChart1 = 99999999, series2MinYChart1 = 99999999;
+        double series1MaxYChart1 = -99999999, series2MaxYChart1 = -99999999;
+
+        static public double series1MinYChart2 = 99999999, series2MinYChart2 = 99999999;
+        static public double series1MaxYChart2 = -99999999, series2MaxYChart2 = -99999999;
+
+        static public double series2Max = -99999999;
         
+
+        List<InterestingSignal> interestingSignals = new List<InterestingSignal>();
+
         class BinData
         {
             public string dataSeries;
@@ -130,8 +149,22 @@ namespace RTLSpectrumAnalyzerGUI
             }
         }
 
+
         Stack<FrequencyRange> graph1FrequencyRanges = new Stack<FrequencyRange>();
-        Stack<FrequencyRange> graph2FrequencyRanges = new Stack<FrequencyRange>();                
+        Stack<FrequencyRange> graph2FrequencyRanges = new Stack<FrequencyRange>();
+
+        class InterestingSignal
+        {
+            public int index = -1;
+            public double strength = 0;
+
+            public InterestingSignal(int index, double strength)
+            {
+                this.index = index;
+                this.strength = strength;
+            }
+        }
+
 
         private double RangeChanged(System.Windows.Forms.DataVisualization.Charting.Chart chart, string dataSeries, float[] data, long lowerIndex, long upperIndex, double newLowerFrequency, ref double graphBinFreqInc)
         {
@@ -156,37 +189,108 @@ namespace RTLSpectrumAnalyzerGUI
 
                 double binFrequency = newLowerFrequency;
 
-                double minY=9999, maxY=-9999;
 
-                System.Windows.Forms.DataVisualization.Charting.DataPoint graphPoint;
+                int minYIndex = -1, maxYIndex = -1;
+
+                double minY= 99999999, maxY=-99999999;
+
+                chart.Series[dataSeries].MarkerStyle = System.Windows.Forms.DataVisualization.Charting.MarkerStyle.Star10;
+
+                InterestingSignal interestingSignal;
+
+                int interestingSignalIndex;
+
+                System.Windows.Forms.DataVisualization.Charting.DataPoint graphPoint1;
                 for (int i = 0; i < lowerResGraphBinCount; i++)
                 {
                     value = data[(long)index];
 
-                    if (Double.IsNaN(value) || value > 100 || value < -100)
+                    /*if (Double.IsNaN(value) || value > 1000000 || value < -100)
                     {
                         value = -25;
+                    }                    
+                    else
+                    */
+                    /*if (Double.IsNaN(value) || value > 100 || value < 0)
+                    {
+                        value = 0;
                     }
                     else
+                    */
                     {
                         if (i < chart.Series[dataSeries].Points.Count)
                         {
-                            graphPoint = chart.Series[dataSeries].Points.ElementAt(i);
-                            graphPoint.SetValueXY(i, value);                            
-                            graphPoint.AxisLabel = (Math.Round((binFrequency / 1000000), 4)).ToString() + "MHz";                            
+                            graphPoint1 = chart.Series[dataSeries].Points.ElementAt(i);
+
+                            ////if (dataSeries == "Series3")
+                                graphPoint1.SetValueXY(i, value);                            
+
+                            graphPoint1.AxisLabel = (Math.Round((binFrequency / 1000000), 4)).ToString() + "MHz";                            
                         }
                         else
                         {
-                            graphPoint = new System.Windows.Forms.DataVisualization.Charting.DataPoint(i, value);                            
-                            graphPoint.AxisLabel = (Math.Round((binFrequency / 1000000), 4)).ToString() + "MHz";                            
-                            chart.Series[dataSeries].Points.Add(graphPoint);                            
+                            graphPoint1 = new System.Windows.Forms.DataVisualization.Charting.DataPoint(i, value);                            
+                            graphPoint1.AxisLabel = (Math.Round((binFrequency / 1000000), 4)).ToString() + "MHz";
+
+                            ////if (dataSeries == "Series3")
+                                chart.Series[dataSeries].Points.Add(graphPoint1);                            
                         }
 
+                        graphPoint1.Label = "";
+                        //graphPoint1.Label = "433MHz";
+
+                        if (interestingSignals != null && dataSeries == "Series3")
+                        {
+                            for (int j = (int)index; j < (int)(index + inc); j++)
+                            {
+                                interestingSignalIndex = interestingSignals.FindIndex(x => x.index == j);
+
+                                if (interestingSignalIndex >= 0)
+                                {
+                                    interestingSignal = interestingSignals[interestingSignalIndex];
+
+                                    //graphPoint1.Label = graphPoint1.AxisLabel;
+                                    graphPoint1.Label = (Math.Round((binFrequency / 1000000), 1)).ToString() + "MHz";
+
+
+                                    /*normalizedColorRange = maxDelta / nearStrengthDeltaRange;
+
+                                    if (normalizedColorRange > 1)
+                                        normalizedColorRange = 1;
+
+                                    if (normalizedColorRange < 0)
+                                        normalizedColorRange = 0;
+
+
+                                    SetPixel(x, y, colors[(int)((1 - normalizedColorRange) * (colors.Count - 1))]);
+                                    */
+
+
+
+                                    graphPoint1.LabelForeColor = Waterfall.colors[(int)((float)interestingSignalIndex / interestingSignals.Count * (Waterfall.colors.Count - 1))];
+
+                                    ////graphPoint1.MarkerStyle = System.Windows.Forms.DataVisualization.Charting.MarkerStyle.Star10;
+
+                                    break;
+                                }
+                            }
+                        }
+
+
+
                         if (value < minY)
+                        {
                             minY = value;
 
-                        if (value > maxY)
+                            minYIndex = i;
+                        }
+
+                        if (value > maxY && index>0)
+                        {
                             maxY = value;
+
+                            maxYIndex = i;
+                        }
                     }
                     
 
@@ -203,11 +307,19 @@ namespace RTLSpectrumAnalyzerGUI
                 {
                     value = data[i];
 
-                    if (Double.IsNaN(value) || value > 100 || value < -100)
+                    
+                    /*if (Double.IsNaN(value) || value > 1000000 || value < -100)
                     {
                         value = -25;
+                    }                                        
+                    else
+                    */
+                    /*if (Double.IsNaN(value) || value > 100 || value < 0)
+                    {
+                        value = 0;
                     }
                     else
+                    */
                     {
                         avgStrength += value;
                         valueCount++;
@@ -220,21 +332,100 @@ namespace RTLSpectrumAnalyzerGUI
 
                 chart.ChartAreas[0].AxisX.ScaleView.Zoom(1, lowerResGraphBinCount-1);
 
-                if (dataSeries == "Series1" || dataSeries == "Series2")
-                {
-                    if (minY < chart.ChartAreas[0].AxisY.Minimum)
-                        chart.ChartAreas[0].AxisY.Minimum = Math.Round(minY, 2);
 
-                    if (maxY > chart.ChartAreas[0].AxisY.Maximum)
-                        chart.ChartAreas[0].AxisY.Maximum = Math.Round(maxY, 2);
+                if (chart == chart1)
+                {
+                    if (dataSeries == "Series1")
+                    {
+                        series1MinYChart1 = minY;
+                        series1MaxYChart1 = maxY;
+                    }
+
+                    if (dataSeries == "Series2")
+                    {
+                        series2MinYChart1 = minY;
+                        series2MaxYChart1 = maxY;
+                    }
+
+                    minY = Math.Min(series1MinYChart1, series2MinYChart1);
+                    maxY = Math.Max(series1MaxYChart1, series2MaxYChart1);
+                }
+                else
+                {
+                    if (dataSeries == "Series1")
+                    {
+                        series1MinYChart2 = minY;
+                        series1MaxYChart2 = maxY;
+                    }
+
+                    if (dataSeries == "Series2")
+                    {
+                        series2MinYChart2 = minY;
+                        series2MaxYChart2 = maxY;
+                    }
+
+                    minY = Math.Min(series1MinYChart2, series2MinYChart2);
+                    maxY = Math.Max(series1MaxYChart2, series2MaxYChart2);
                 }
 
+                if (minY == maxY)
+                    maxY = minY + 0.01;
 
-                if (dataSeries == "Series1")
-                    textBox7.Text = avgStrength.ToString();
 
-                if (dataSeries == "Series2")
-                    textBox8.Text = avgStrength.ToString();            
+                ////if (radioButton6.Checked || maxY <= 0)
+                    chart.ChartAreas[0].AxisY.Minimum = Math.Round(minY, 2);                
+                ///else
+                    ////chart.ChartAreas[0].AxisY.Minimum = 0;
+
+                chart.ChartAreas[0].AxisY.Maximum = Math.Round(maxY, 2);
+
+
+                /*if (dataSeries == "Series1" || dataSeries == "Series2")
+                {
+                    ////minY = data[(long)minYIndex];
+                    
+                    graphPoint1 = chart.Series[j].Points.ElementAt(minYIndex);
+                    minY = Math.Min(minY, graphPoint1.YValues[0]);
+
+
+                    for (int j=0; j<chart.Series.Count; j++)
+                    {
+                        if (minYIndex < chart.Series[j].Points.Count)
+                        {
+                            graphPoint1 = chart.Series[j].Points.ElementAt(minYIndex);
+
+                            minY = Math.Min(minY, graphPoint1.YValues[0]);
+
+                            graphPoint1 = chart.Series[j].Points.ElementAt(maxYIndex);
+                            maxY = Math.Max(maxY, graphPoint1.YValues[0]);
+                        }
+                    }
+
+                    
+
+                    ////if (minY < chart.ChartAreas[0].AxisY.Minimum)
+                    chart.ChartAreas[0].AxisY.Minimum = Math.Round(minY, 2);
+
+                    ////if (maxY > chart.ChartAreas[0].AxisY.Maximum)
+                        chart.ChartAreas[0].AxisY.Maximum = Math.Round(maxY, 2);
+                }*/
+
+
+                /*if (dataSeries == "Series3" && minY!=maxY)
+                {
+                    chart.ChartAreas[0].AxisY.Minimum = Math.Round(minY, 2);
+
+                    chart.ChartAreas[0].AxisY.Maximum = Math.Round(maxY, 2);
+                }*/
+
+                if (chart == chart2)
+                {
+                    if (dataSeries == "Series1")
+                        textBox7.Text = Math.Round(avgStrength,3).ToString();
+
+                    if (dataSeries == "Series2")
+                        textBox8.Text = Math.Round(avgStrength, 3).ToString();
+                }
 
                 return avgStrength;
             }
@@ -288,14 +479,14 @@ namespace RTLSpectrumAnalyzerGUI
                                 waterFall.RefreshWaterfall(series2BinData.binArray, series1BinData.binArray, lowerIndex + 1, upperIndex);
 
                                 waterFall.CalculateRanges(series2BinData.binArray, series1BinData.binArray);
-                                waterFallAvg.CalculateRanges(series2BinData.avgBinArray, series1BinData.avgBinArray);
+                                ////waterFallAvg.CalculateRanges(series2BinData.avgBinArray, series1BinData.avgBinArray);
                             }
                             else
                             {
                                 waterFall.RefreshWaterfall(series1BinData.binArray, series2BinData.binArray, lowerIndex + 1, upperIndex);
 
                                 waterFall.CalculateRanges(series1BinData.binArray, series2BinData.binArray);
-                                waterFallAvg.CalculateRanges(series1BinData.avgBinArray, series2BinData.avgBinArray);
+                                ////waterFallAvg.CalculateRanges(series1BinData.avgBinArray, series2BinData.avgBinArray);
                             }
 
                             /*if (recordingSeries1)
@@ -313,16 +504,31 @@ namespace RTLSpectrumAnalyzerGUI
                                 {
                                     waterFallAvg.RefreshWaterfall(series2BinData.avgBinArray, series1BinData.avgBinArray, lowerIndex + 1, upperIndex);
 
-                                    waterFall.CalculateRanges(series2BinData.binArray, series1BinData.binArray);
+                                    ////waterFall.CalculateRanges(series2BinData.binArray, series1BinData.binArray);
                                     waterFallAvg.CalculateRanges(series2BinData.avgBinArray, series1BinData.avgBinArray);
                                 }
                                 else
                                 {
-                                    waterFallAvg.RefreshWaterfall(series1BinData.avgBinArray, series2BinData.avgBinArray, lowerIndex + 1, upperIndex);
+                                double nearStrengthDeltaRange = 0;
 
-                                    waterFall.CalculateRanges(series1BinData.binArray, series2BinData.binArray);
-                                    waterFallAvg.CalculateRanges(series1BinData.avgBinArray, series2BinData.avgBinArray);
+                                if (interestingSignals != null && interestingSignals.Count > 0)
+                                {
+                                    int i = 0;
+
+                                    while (i < interestingSignals.Count && interestingSignals[i].strength > 0)
+                                        nearStrengthDeltaRange = interestingSignals[i++].strength;                                    
                                 }
+
+                                if (nearStrengthDeltaRange>0)
+                                    waterFallAvg.SetNearStrengthDeltaRange(nearStrengthDeltaRange);
+                                else
+                                    waterFallAvg.CalculateRanges(series1BinData.avgBinArray, series2BinData.avgBinArray);
+
+                                waterFallAvg.RefreshWaterfall(series1BinData.avgBinArray, series2BinData.avgBinArray, lowerIndex + 1, upperIndex);
+
+                                    ////waterFall.CalculateRanges(series1BinData.binArray, series2BinData.binArray);
+                                    ////waterFallAvg.CalculateRanges(series1BinData.avgBinArray, series2BinData.avgBinArray);                                    
+                            }
 
                                 if (waterFallAvg.GetMode() == WaterFallMode.Difference && waterFallAvg.GetRangeMode() == WaterFallRangeMode.Auto)
                                     textBox10.Text = Math.Round(waterFallAvg.GetNearStrengthDeltaRange(), 2).ToString();
@@ -418,11 +624,11 @@ namespace RTLSpectrumAnalyzerGUI
                     RangeChanged(chart2, series2BinData.dataSeries, series2BinData.avgBinArray, lowerIndex, upperIndex, graph2LowerFrequency, ref graph2BinFreqInc);
 
                 if (series1BinData != null && series2BinData != null)
-                    GraphDifference(series1BinData, series2BinData);
+                    GraphDifference(series1BinData, series2BinData);                              
             }
         }
 
-        private void RecordData(ref BinData binData, ref double averageCurrentFrameStrength, ref double averageTotalFramesStrength)
+        private void RecordData(ref BinData binData, ref double averageCurrentFrameStrength, ref double averageTotalFramesStrength, ref int totalMagnitude)
         {
             if (binData.binArray.Length==0)
                 binData = new BinData(totalBinCount, binData.dataSeries);                        
@@ -435,12 +641,15 @@ namespace RTLSpectrumAnalyzerGUI
             
             NativeMethods.GetBins(binData.binArray);
 
+            totalMagnitude = NativeMethods.GetTotalMagnitude();
+
             for (int j = 0; j < binData.size; j++)
             {
                 value = binData.binArray[j];
 
-                if (Double.IsNaN(value) || value > 100 || value < -100)
+                /*if (Double.IsNaN(value) || value > 100 || value < -100)
                     value = -25;
+                    */
 
                 binData.totalBinArray[j] += (float) value;
 
@@ -461,8 +670,8 @@ namespace RTLSpectrumAnalyzerGUI
 
             if (binData.numberOfFrames % 100 == 0)
             {
-                minAvgStrength = 9999;
-                maxAvgStrength = -9999;
+                minAvgStrength = 99999999;
+                maxAvgStrength = -99999999;
             }
 
             if (averageTotalFramesStrength > maxAvgStrength)
@@ -496,8 +705,7 @@ namespace RTLSpectrumAnalyzerGUI
                 resetGraph = false;
                 newData = false;
             }            
-        }
-
+        }        
 
         private void GraphDifference(BinData series1BinData, BinData series2BinData)
         {
@@ -510,18 +718,98 @@ namespace RTLSpectrumAnalyzerGUI
                 else
                     chart2.Series["Series3"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastLine;
 
+                double minY = 99999999, maxY = -99999999;
+
+                double interestingSignalDif;
                 double dif;
+
+                InterestingSignal interestingSignal;
+
+                int interestingSignalIndex;
+
+                interestingSignals.Clear();
+
+                series2Max = -99999999;
+
                 for (int i = 0; i < totalBinCount; i++)
                 {
-                    dif = series2BinData.avgBinArray[i] - series1BinData.avgBinArray[i];
+                    if (series2BinData.avgBinArray[i] > series2Max)
+                        series2Max = series2BinData.avgBinArray[i];
+                }
+
+                    for (int i = 0; i < totalBinCount; i++)
+                {
+                    //dif = (series2BinData.avgBinArray[i] - series1BinData.avgBinArray[i]) / series1BinData.avgBinArray[i];
+
+                    interestingSignalDif = Waterfall.CalculateStrengthDifference(series1BinData.avgBinArray, series2BinData.avgBinArray, i);
+
+                    dif = Waterfall.CalculateStrengthDifference2(series1BinData.avgBinArray, series2BinData.avgBinArray, i);
+                    ////dif = Waterfall.CalculateStrengthDifference(series1BinData.avgBinArray, series2BinData.avgBinArray, i);
+
+
+                    /*if (!interestingSignals.Exists(x => i >= x.index-10 &&  i <= x.index+10))
+                        interestingSignals.Add(new InterestingSignal(i, interestingSignalDif));
+                        */
+
+
+                    interestingSignalIndex = interestingSignals.FindIndex(x => i >= x.index - 10 && i <= x.index + 10);
+
+                    if (interestingSignalIndex >= 0)
+                    {
+                        interestingSignal = interestingSignals[interestingSignalIndex];
+
+                        if (interestingSignalDif>interestingSignal.strength)
+                        {
+                            interestingSignals.RemoveAt(interestingSignalIndex);
+                            interestingSignals.Add(new InterestingSignal(i, interestingSignalDif));
+                        }
+                    }
+                    else
+                        interestingSignals.Add(new InterestingSignal(i, interestingSignalDif));
+
+
+
+                    interestingSignals.Sort(delegate (InterestingSignal x, InterestingSignal y)
+                    {
+                        if (x.strength < y.strength)
+                            return 1;
+                        else if (x.strength == y.strength)
+                            return 0;
+                        else
+                            return -1;
+                    });
+
+                    if (interestingSignals.Count>4)
+                        interestingSignals.RemoveAt(4);
 
                     if (!checkBox1.Checked || dif >= difThreshold)
-                        difBinArray[i] = (float)dif;
+                        ////difBinArray[i] = (float)dif;
+                        //difBinArray[i] = (float)series2BinData.avgBinArray[i];
+                        //difBinArray[i] = (float) chart2.ChartAreas[0].AxisY.Minimum + (float) series2BinData.avgBinArray[i];
+
+                        difBinArray[i] = (float)chart2.ChartAreas[0].AxisY.Minimum + (float)dif;
                     else
-                        difBinArray[i] = -9999;
+                        difBinArray[i] = -99999999;
+
+
+                    if (dif < minY)
+                        minY = dif;
+
+                    if (dif > maxY)
+                        maxY = dif;
                 }
 
                 AxisViewChanged(chart2, "Series3", difBinArray, ref graph2LowerFrequency, ref graph2UpperFrequency, ref graph2BinFreqInc);
+                /*
+                ////if (dataSeries == "Series3" && minY != maxY)
+                {
+                    ////chart2.ChartAreas[0].AxisY.Minimum = Math.Round(minY, 2);
+
+                    chart2.ChartAreas[0].AxisY.Minimum = minY;
+
+                    chart2.ChartAreas[0].AxisY.Maximum = Math.Round(maxY, 2);
+                }*/
+                
                 chart2.Refresh();
             }            
         }
@@ -544,7 +832,57 @@ namespace RTLSpectrumAnalyzerGUI
                 textBox8.Text = averageStrength.ToString();            
         }
 
-        
+
+        private void GraphTotalMagnitude(int totalMagnitude)
+        {   
+            /*
+            ////if (binData.dataSeries == "Series1")
+                textBox7.Text = totalMagnitude.ToString();
+
+            ////if (binData.dataSeries == "Series2")
+                textBox8.Text = totalMagnitude.ToString();
+                */
+
+            magnitudeBuffer[magnitudeBufferCount++] = totalMagnitude;
+
+            if (magnitudeBufferCount == 10)
+            {
+                avgTotalMagnitude = 0;
+
+                for (int i = 0; i < magnitudeBufferCount; i++)
+                    avgTotalMagnitude += magnitudeBuffer[i];
+
+                avgTotalMagnitude /= 10;
+
+
+                magnitudeBufferCount = 0;
+
+                System.Windows.Forms.DataVisualization.Charting.DataPoint graphPoint = new System.Windows.Forms.DataVisualization.Charting.DataPoint(chart3.Series["Series1"].Points.Count, avgTotalMagnitude);
+
+                chart3.Series["Series1"].Points.Add(graphPoint);
+
+                if (!chart3RangeSet)
+                {
+                    chart3.ChartAreas[0].AxisY.Maximum = avgTotalMagnitude+1;
+
+                    chart3.ChartAreas[0].AxisY.Minimum = avgTotalMagnitude-1;
+
+                    chart3RangeSet = true;
+                }
+                
+                {
+                    if (avgTotalMagnitude > chart3.ChartAreas[0].AxisY.Maximum)
+                        chart3.ChartAreas[0].AxisY.Maximum = avgTotalMagnitude;
+
+                    if (avgTotalMagnitude < chart3.ChartAreas[0].AxisY.Minimum)
+                        chart3.ChartAreas[0].AxisY.Minimum = avgTotalMagnitude;
+                }
+
+               
+            }
+        }
+
+
 
 
         private void button3_Click(object sender, EventArgs e)
@@ -561,14 +899,18 @@ namespace RTLSpectrumAnalyzerGUI
                     {                  
                         double averageCurrentFrameStrength = 0;
                         double averageTotalFramesStrength = 0;
-                        RecordData(ref series1BinData, ref averageCurrentFrameStrength, ref averageTotalFramesStrength);
+                        int totalMagnitude = 0;
+
+                        RecordData(ref series1BinData, ref averageCurrentFrameStrength, ref averageTotalFramesStrength, ref totalMagnitude);
 
                         try
                         {
                             this.Invoke(new Action(() =>
                             {
                                 GraphData(series1BinData);                                
-                                GraphDifference(series1BinData, series2BinData);                                
+                                GraphDifference(series1BinData, series2BinData);
+
+                                GraphTotalMagnitude(totalMagnitude);
                             }));
                         }
                         catch (Exception ex)
@@ -612,7 +954,10 @@ namespace RTLSpectrumAnalyzerGUI
             if (button5.Text == "Record Series 2 Data (Near)")
             {
                 if (series1BinData.numberOfFrames > 0)
-                    radioButton4.Enabled = true;    
+                {
+                    radioButton4.Enabled = true;
+                    radioButton4.Checked = true;
+                }
 
                 Task.Factory.StartNew(() =>
                 {
@@ -622,14 +967,17 @@ namespace RTLSpectrumAnalyzerGUI
                     {
                         double averageCurrentFrameStrength = 0;
                         double averageTotalFramesStrength = 0;
-                        RecordData(ref series2BinData, ref averageCurrentFrameStrength, ref averageTotalFramesStrength);
+                        int totalMagnitude = 0;
+                        RecordData(ref series2BinData, ref averageCurrentFrameStrength, ref averageTotalFramesStrength, ref totalMagnitude);
 
                         try
                         {
                             this.Invoke(new Action(() =>
                             {
                                 GraphData(series2BinData);                                
-                                GraphDifference(series1BinData, series2BinData);                                                                
+                                GraphDifference(series1BinData, series2BinData);
+
+                                GraphTotalMagnitude(totalMagnitude);
                             }));
                         }
                         catch (Exception ex)
@@ -973,34 +1321,53 @@ namespace RTLSpectrumAnalyzerGUI
 
         private void ClearSeries1()
         {
-            chart1.Series["Series1"].Points.Clear();
-            chart2.Series["Series1"].Points.Clear();
-            
-            series1BinData.Clear();
+            if (series1BinData != null)
+            {
+                chart1.Series["Series1"].Points.Clear();
+                chart2.Series["Series1"].Points.Clear();
 
-            if (chart2.Series["Series3"].Points.Count > 0)
-                chart2.Series["Series3"].Points.Clear();
+                series1BinData.Clear();
 
-            GraphData(series1BinData);
-            GraphDifference(series1BinData, series2BinData);
+                if (chart2.Series["Series3"].Points.Count > 0)
+                    chart2.Series["Series3"].Points.Clear();
 
-            textBox7.Text = "0";
+
+                series1MinYChart1 = 99999999;
+                series1MaxYChart1 = -99999999;
+
+                series1MinYChart2 = 99999999;
+                series1MaxYChart2 = -99999999;
+
+                GraphData(series1BinData);
+                GraphDifference(series1BinData, series2BinData);
+
+                textBox7.Text = "0";
+            }
         }
 
         private void ClearSeries2()
         {
-            chart1.Series["Series2"].Points.Clear();
-            chart2.Series["Series2"].Points.Clear();
+            if (series2BinData != null)
+            {
+                chart1.Series["Series2"].Points.Clear();
+                chart2.Series["Series2"].Points.Clear();
 
-            series2BinData.Clear();
+                series2BinData.Clear();
 
-            if (chart2.Series["Series3"].Points.Count > 0)
-                chart2.Series["Series3"].Points.Clear();
+                if (chart2.Series["Series3"].Points.Count > 0)
+                    chart2.Series["Series3"].Points.Clear();
 
-            GraphData(series2BinData);
-            GraphDifference(series1BinData, series2BinData);
+                series2MinYChart1 = 99999999;
+                series2MaxYChart1 = -99999999;
 
-            textBox8.Text = "0";
+                series2MinYChart2 = 99999999;
+                series2MaxYChart2 = -99999999;
+
+                GraphData(series2BinData);
+                GraphDifference(series1BinData, series2BinData);
+
+                textBox8.Text = "0";
+            }
         }
 
         private void button11_Click(object sender, EventArgs e)
@@ -1053,8 +1420,8 @@ namespace RTLSpectrumAnalyzerGUI
 
             chart3.Series["Series1"].IsValueShownAsLabel = false;
 
-            chart3.ChartAreas[0].AxisY.Minimum = -20.5;
-            chart3.ChartAreas[0].AxisY.Maximum = -19.5;
+            //chart3.ChartAreas[0].AxisY.Minimum = -20.5;
+            //chart3.ChartAreas[0].AxisY.Maximum = -19.5;
 
 
             LoadConfig();
@@ -1114,6 +1481,39 @@ namespace RTLSpectrumAnalyzerGUI
             }            
         }
 
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            if (this.checkBox2.Checked)
+            {
+                waterFall.SetRangeMode(WaterFallRangeMode.Auto);
+                waterFallAvg.SetRangeMode(WaterFallRangeMode.Auto);
+            }
+            else
+            {
+                waterFall.SetRangeMode(WaterFallRangeMode.Fixed);
+                waterFallAvg.SetRangeMode(WaterFallRangeMode.Fixed);
+            }
+        }
+
+        private void radioButton6_CheckedChanged(object sender, EventArgs e)
+        {
+            //NativeMethods.SetUseDB(radioButton6.Checked);
+            NativeMethods.SetUseDB(radioButton6.Checked ? 1 : 0);
+
+            ClearSeries1();
+            ////Thread.Sleep(1000);
+            ClearSeries2();
+        }
+
+        private void radioButton7_CheckedChanged(object sender, EventArgs e)
+        {
+            ////NativeMethods.SetUseDB(!radioButton7.Checked);
+            ////NativeMethods.SetUseDB();
+
+            //ClearSeries1();
+            //ClearSeries2();
+        }        
+
         private void radioButton5_CheckedChanged(object sender, EventArgs e)
         {
             if (radioButton5.Checked)
@@ -1160,6 +1560,16 @@ namespace RTLSpectrumAnalyzerGUI
             }
         }
 
+        private void chart3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+
+        }
+
         private void textBox9_TextChanged(object sender, EventArgs e)
         {
             
@@ -1184,6 +1594,11 @@ namespace RTLSpectrumAnalyzerGUI
             }
         }
 
+    }
+
+    public class NoiseFloor
+    {
+        static public int NoiseFloorRangeAroundSignal = 100;
     }
 }
 

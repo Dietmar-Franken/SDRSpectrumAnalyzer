@@ -1,1 +1,0 @@
-debugverbose_device_search startdev_index: 0verbose_reset_bufferfrequency_rangertlsdr_set_sample_rate

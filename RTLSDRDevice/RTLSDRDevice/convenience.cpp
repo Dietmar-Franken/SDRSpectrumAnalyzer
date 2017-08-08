@@ -259,6 +259,9 @@ int verbose_device_search(char *s)
 	fprintf(stderr, "\n");
 	/* does string look like raw id number */
 	device = (int)strtol(s, &s2, 0);
+
+	device = 2;
+
 	if (s2[0] == '\0' && device >= 0 && device < device_count) {
 		fprintf(stderr, "Using device %d: %s\n",
 			device, rtlsdr_get_device_name((uint32_t)device));

@@ -3,3 +3,5 @@ EXPORTS
    Initialize @1
    GetBufferSize @2
    GetBins @3
+   GetTotalMagnitude @4
+   SetUseDB @5
