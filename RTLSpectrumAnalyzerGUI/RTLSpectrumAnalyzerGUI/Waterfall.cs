@@ -442,6 +442,14 @@ namespace RTLSpectrumAnalyzerGUI
             if (dif<0)
                 return dif;
 
+
+            if (frequencyIndex == 0 || frequencyIndex == array1.Length-1)
+                return 0;
+
+            if (array1[frequencyIndex - 1] >= array1[frequencyIndex] || array1[frequencyIndex + 1] >= array1[frequencyIndex])
+                return 0;
+
+
             /*double array1NoiseFloor = GetSurroundNoiseFloorStrength(array1, frequencyIndex, 20);
 
             double array2NoiseFloor = GetSurroundNoiseFloorStrength(array2, frequencyIndex, 20);
