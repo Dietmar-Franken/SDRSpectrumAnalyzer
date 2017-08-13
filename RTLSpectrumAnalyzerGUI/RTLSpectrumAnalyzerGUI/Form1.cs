@@ -91,9 +91,26 @@ namespace RTLSpectrumAnalyzerGUI
         static public double series1MaxYChart2 = -99999999, series2MaxYChart2 = -99999999;
 
         static public double series2Max = -99999999;
-        
 
+        double averageSeries1CurrentFrameStrength = 0;
+        double averageSeries2CurrentFrameStrength = 0;
+
+        double averageSeries1TotalFramesStrength = 0;
+        double averageSeries2TotalFramesStrength = 0;
+
+        int deviceCount = 1;
+        bool getDataForSeries1 = true;
+        bool getDataForSeries2 = false;
+
+
+        List<InterestingSignal> leaderBoardSignals = new List<InterestingSignal>();
         List<InterestingSignal> interestingSignals = new List<InterestingSignal>();
+
+
+        int leaderBoardSignalIndex;
+        short MAX_LEADER_BOARD_COUNT = 100;
+        short MAX_LEADER_BOARD_LIST_COUNT = 4;
+
 
         class BinData
         {
@@ -157,14 +174,23 @@ namespace RTLSpectrumAnalyzerGUI
         {
             public int index = -1;
             public double strength = 0;
+            public double rating = 0;
+            public double frequency = 0;
 
-            public InterestingSignal(int index, double strength)
+            public InterestingSignal(int index, double strength, double frequency)
             {
                 this.index = index;
                 this.strength = strength;
+
+                this.frequency = frequency;
             }
         }
 
+        private string GetFrequencyString(double frequency)
+        {            
+            return (Math.Round((frequency/ 1000000), 4)).ToString() + "MHz";
+        }
+        
 
         private double RangeChanged(System.Windows.Forms.DataVisualization.Charting.Chart chart, string dataSeries, float[] data, long lowerIndex, long upperIndex, double newLowerFrequency, ref double graphBinFreqInc)
         {
@@ -223,17 +249,17 @@ namespace RTLSpectrumAnalyzerGUI
                             graphPoint1 = chart.Series[dataSeries].Points.ElementAt(i);
 
                             ////if (dataSeries == "Series3")
-                                graphPoint1.SetValueXY(i, value);                            
+                                graphPoint1.SetValueXY(i, value);
 
-                            graphPoint1.AxisLabel = (Math.Round((binFrequency / 1000000), 4)).ToString() + "MHz";                            
+                            graphPoint1.AxisLabel = GetFrequencyString(binFrequency);
                         }
                         else
                         {
                             graphPoint1 = new System.Windows.Forms.DataVisualization.Charting.DataPoint(i, value);                            
-                            graphPoint1.AxisLabel = (Math.Round((binFrequency / 1000000), 4)).ToString() + "MHz";
+                            graphPoint1.AxisLabel = GetFrequencyString(binFrequency);
 
                             ////if (dataSeries == "Series3")
-                                chart.Series[dataSeries].Points.Add(graphPoint1);                            
+                            chart.Series[dataSeries].Points.Add(graphPoint1);                            
                         }
 
                         graphPoint1.Label = "";
@@ -250,7 +276,7 @@ namespace RTLSpectrumAnalyzerGUI
                                     interestingSignal = interestingSignals[interestingSignalIndex];
 
                                     //graphPoint1.Label = graphPoint1.AxisLabel;
-                                    graphPoint1.Label = (Math.Round((binFrequency / 1000000), 1)).ToString() + "MHz";
+                                    graphPoint1.Label = GetFrequencyString(binFrequency);
 
 
                                     /*normalizedColorRange = maxDelta / nearStrengthDeltaRange;
@@ -627,8 +653,18 @@ namespace RTLSpectrumAnalyzerGUI
                     GraphDifference(series1BinData, series2BinData);                              
             }
         }
+        
+        private void ScaleData(ref float[] binArray, double averageTotalFramesStrength1, double averageTotalFramesStrength2)
+        {
+            float ratio = (float) (averageTotalFramesStrength2 / averageTotalFramesStrength1);
 
-        private void RecordData(ref BinData binData, ref double averageCurrentFrameStrength, ref double averageTotalFramesStrength, ref int totalMagnitude)
+            for (int j = 0; j < binArray.Length; j++)
+            {
+                binArray[j] *= ratio;                
+            }
+        }
+
+            private void RecordData(ref BinData binData, ref double averageCurrentFrameStrength, ref double averageTotalFramesStrength, ref int totalMagnitude, int deviceIndex)
         {
             if (binData.binArray.Length==0)
                 binData = new BinData(totalBinCount, binData.dataSeries);                        
@@ -639,13 +675,35 @@ namespace RTLSpectrumAnalyzerGUI
 
             averageTotalFramesStrength = 0;
             
-            NativeMethods.GetBins(binData.binArray);
+            NativeMethods.GetBins(binData.binArray, deviceIndex);
 
             totalMagnitude = NativeMethods.GetTotalMagnitude();
 
             for (int j = 0; j < binData.size; j++)
             {
                 value = binData.binArray[j];
+
+                if (Double.IsNaN(value) || value < 0)
+                {
+                    //value = -25;
+
+                    if (j>0)
+                        value = binData.binArray[j-1];
+                    else
+                        if (j< binData.size-1)
+                            value = binData.binArray[j + 1];
+
+
+                    binData.binArray[j] = (float)value;
+                }
+
+                if (Double.IsNaN(value) || value < 0)
+                {
+                    value = -25;
+                    binData.binArray[j] = (float)value;
+                }
+
+                    
 
                 /*if (Double.IsNaN(value) || value > 100 || value < -100)
                     value = -25;
@@ -731,13 +789,15 @@ namespace RTLSpectrumAnalyzerGUI
 
                 series2Max = -99999999;
 
-                for (int i = 0; i < totalBinCount; i++)
+                int i = 0;
+
+                for (i = 0; i < totalBinCount; i++)
                 {
                     if (series2BinData.avgBinArray[i] > series2Max)
                         series2Max = series2BinData.avgBinArray[i];
                 }
 
-                    for (int i = 0; i < totalBinCount; i++)
+                for (i = 0; i < totalBinCount; i++)
                 {
                     //dif = (series2BinData.avgBinArray[i] - series1BinData.avgBinArray[i]) / series1BinData.avgBinArray[i];
 
@@ -761,11 +821,11 @@ namespace RTLSpectrumAnalyzerGUI
                         if (interestingSignalDif>interestingSignal.strength)
                         {
                             interestingSignals.RemoveAt(interestingSignalIndex);
-                            interestingSignals.Add(new InterestingSignal(i, interestingSignalDif));
+                            interestingSignals.Add(new InterestingSignal(i, interestingSignalDif, dataLowerFrequency + (i * binSize)));
                         }
                     }
                     else
-                        interestingSignals.Add(new InterestingSignal(i, interestingSignalDif));
+                        interestingSignals.Add(new InterestingSignal(i, interestingSignalDif, dataLowerFrequency + (i * binSize)));
 
 
 
@@ -798,6 +858,60 @@ namespace RTLSpectrumAnalyzerGUI
                     if (dif > maxY)
                         maxY = dif;
                 }
+
+                for (i = 0; i < interestingSignals.Count; i++)
+                {
+                    leaderBoardSignalIndex = leaderBoardSignals.FindIndex(x => interestingSignals[i].index == x.index);
+
+                    if (leaderBoardSignalIndex >= 0)
+                    {
+                        ////leaderBoardSignals[leaderBoardSignalIndex].rating += (interestingSignals.Count - i);
+                        leaderBoardSignals[leaderBoardSignalIndex].rating += interestingSignals[i].strength;
+                    }
+                    else
+                    {
+                        leaderBoardSignals.Add(interestingSignals[i]);
+                        leaderBoardSignals[leaderBoardSignals.Count-1].rating += interestingSignals[i].strength;
+                    }
+                }
+
+                leaderBoardSignals.Sort(delegate (InterestingSignal x, InterestingSignal y)
+                {
+                    if (x.rating < y.rating)
+                        return 1;
+                    else if (x.rating == y.rating)
+                        return 0;
+                    else
+                        return -1;
+                });
+
+
+                if (leaderBoardSignals.Count>MAX_LEADER_BOARD_COUNT)
+                {
+                    i = leaderBoardSignals.Count - 1;
+                    while (i > MAX_LEADER_BOARD_COUNT - 1)
+                    {
+                        leaderBoardSignals.RemoveAt(i);
+                        i--;
+                    }
+                }
+
+                listBox1.Items.Clear();
+
+                string frequencyString;
+
+                i = 0;
+                while(i<leaderBoardSignals.Count && i < MAX_LEADER_BOARD_LIST_COUNT)
+                {
+                    frequencyString = GetFrequencyString(leaderBoardSignals[i].frequency);                    
+                    listBox1.Items.Add(frequencyString + ": " + Math.Round(leaderBoardSignals[i].rating/100000));                    
+
+                    i++;
+                }
+
+
+
+
 
                 AxisViewChanged(chart2, "Series3", difBinArray, ref graph2LowerFrequency, ref graph2UpperFrequency, ref graph2BinFreqInc);
                 /*
@@ -896,26 +1010,39 @@ namespace RTLSpectrumAnalyzerGUI
                 {
                     recordingSeries1 = true;
                     while (recordingSeries1)
-                    {                  
-                        double averageCurrentFrameStrength = 0;
-                        double averageTotalFramesStrength = 0;
-                        int totalMagnitude = 0;
-
-                        RecordData(ref series1BinData, ref averageCurrentFrameStrength, ref averageTotalFramesStrength, ref totalMagnitude);
-
-                        try
+                    {
+                        if ((deviceCount == 2 && getDataForSeries1) || deviceCount == 1)
                         {
-                            this.Invoke(new Action(() =>
+                            //gettingDataForSeries1 = true;
+
+                            int totalMagnitude = 0;
+
+                            RecordData(ref series1BinData, ref averageSeries1CurrentFrameStrength, ref averageSeries1TotalFramesStrength, ref totalMagnitude, 0);
+
+                            /*////if (averageSeries2CurrentFrameStrength > 0)
+                                ScaleData(ref series1BinData.binArray, averageSeries1CurrentFrameStrength, averageSeries2CurrentFrameStrength);
+
+                            if (averageSeries2TotalFramesStrength > 0)
+                                ScaleData(ref series1BinData.avgBinArray, averageSeries1TotalFramesStrength, averageSeries2TotalFramesStrength);
+                            */
+                                
+                            try
                             {
-                                GraphData(series1BinData);                                
-                                GraphDifference(series1BinData, series2BinData);
+                                this.Invoke(new Action(() =>
+                                {
+                                    GraphData(series1BinData);
+                                    GraphDifference(series1BinData, series2BinData);
 
-                                GraphTotalMagnitude(totalMagnitude);
-                            }));
-                        }
-                        catch (Exception ex)
-                        {
+                                    GraphTotalMagnitude(totalMagnitude);
+                                }));
+                            }
+                            catch (Exception ex)
+                            {
 
+                            }
+
+                            getDataForSeries1 = false;
+                            getDataForSeries2 = true;
                         }
                     }
 
@@ -938,8 +1065,12 @@ namespace RTLSpectrumAnalyzerGUI
                     
                 });
 
-                button4.Enabled = false;
-                button5.Enabled = false;
+                if (deviceCount == 1)
+                {
+                    button4.Enabled = false;
+                    button5.Enabled = false;
+                }
+
                 button3.Text = "Stop Recording";
             }
             else
@@ -965,25 +1096,30 @@ namespace RTLSpectrumAnalyzerGUI
 
                     while (recordingSeries2)
                     {
-                        double averageCurrentFrameStrength = 0;
-                        double averageTotalFramesStrength = 0;
-                        int totalMagnitude = 0;
-                        RecordData(ref series2BinData, ref averageCurrentFrameStrength, ref averageTotalFramesStrength, ref totalMagnitude);
+                        if ((deviceCount == 2 && getDataForSeries2) || deviceCount == 1)
+                        {                            
+                            int totalMagnitude = 0;
+                            RecordData(ref series2BinData, ref averageSeries2CurrentFrameStrength, ref averageSeries2TotalFramesStrength, ref totalMagnitude, deviceCount - 1);
 
-                        try
-                        {
-                            this.Invoke(new Action(() =>
+                            try
                             {
-                                GraphData(series2BinData);                                
-                                GraphDifference(series1BinData, series2BinData);
+                                this.Invoke(new Action(() =>
+                                {
+                                    GraphData(series2BinData);
+                                    GraphDifference(series1BinData, series2BinData);
 
-                                GraphTotalMagnitude(totalMagnitude);
-                            }));
+                                    GraphTotalMagnitude(totalMagnitude);
+                                }));
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+
+                            getDataForSeries2 = false;
+                            getDataForSeries1 = true;
+
                         }
-                        catch (Exception ex)
-                        {
-
-                        }                        
                     }
 
 
@@ -1004,8 +1140,12 @@ namespace RTLSpectrumAnalyzerGUI
                     }                                            
                 });
 
-                button3.Enabled = false;
-                button4.Enabled = false;
+                if (deviceCount == 1)
+                {
+                    button3.Enabled = false;
+                    button4.Enabled = false;
+                }
+
                 button5.Text = "Stop Recording";
             }
             else
@@ -1512,7 +1652,13 @@ namespace RTLSpectrumAnalyzerGUI
 
             //ClearSeries1();
             //ClearSeries2();
-        }        
+        }
+
+        private void button14_Click(object sender, EventArgs e)
+        {
+            leaderBoardSignals.Clear();
+            listBox1.Items.Clear();
+        }
 
         private void radioButton5_CheckedChanged(object sender, EventArgs e)
         {

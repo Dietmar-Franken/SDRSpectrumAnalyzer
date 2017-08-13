@@ -15,6 +15,10 @@
 
 static rtlsdr_dev_t *dev = NULL;
 
+static rtlsdr_dev_t *dev2 = NULL;
+
+//rtlsdr_dev_t *devices = new rtlsdr_dev_t[2];// = new rtlsdr_dev_t[2];
+
 #include <math.h>
 
 #define M_PI       3.14159265358979323846
@@ -283,52 +287,76 @@ void frequency_range(unsigned int startFrequency, unsigned int endFrequency, uns
 	fprintf(stderr, "Buffer size: %i bytes (%0.2fms)\n", buf_len, 1000 * 0.5 * (float)buf_len / (float)bw_used);	
 }
 
-int Initialize(unsigned int startFrequency, unsigned int endFrequency, unsigned int stepSize)
-{	
-	double (*window_fn)(int, int) = rectangle;
 
-	if (dev == NULL)
-	{		
-	int dev_index = verbose_device_search("0");		
+rtlsdr_dev_t* InitializeDevice(int dev_index, unsigned int startFrequency, unsigned int endFrequency, unsigned int stepSize, rtlsdr_dev_t *device)
+{
+	double(*window_fn)(int, int) = rectangle;
 
-	if (dev_index < 0) {
-		return -1;
+	////rtlsdr_dev_t *device;
+
+	if (device == NULL)
+	{
+		int r = rtlsdr_open(&device, (uint32_t)dev_index);
+
+		/*////if (dev_index == 0)
+			dev = device;
+		else
+			dev2 = device;*/
+
+		if (r < 0) {
+			//fprintf(stderr, "Failed to open rtlsdr device #%d.\n", dev_index);		
+			return NULL;
+		}
 	}
 
-	int r = rtlsdr_open(&dev, (uint32_t)dev_index);
+	verbose_auto_gain(device);
 
-	if (r < 0) {
-		//fprintf(stderr, "Failed to open rtlsdr device #%d.\n", dev_index);		
-		return -1;
-	}
-	}
+	////verbose_gain_set(device, 800);
 
-	verbose_auto_gain(dev);
+	verbose_ppm_set(device, ppm_error);
 
-	////verbose_gain_set(dev, 800);
-
-	verbose_ppm_set(dev, ppm_error);
-
-	verbose_reset_buffer(dev);	
+	verbose_reset_buffer(device);
 
 	frequency_range(startFrequency, endFrequency, stepSize);
-	
-	rtlsdr_set_sample_rate(dev, (uint32_t)tunes[0].rate);	
+
+	rtlsdr_set_sample_rate(device, (uint32_t)tunes[0].rate);
 
 
-	////rtlsdr_set_sample_rate(dev, 2500000);
+	////rtlsdr_set_sample_rate(device, 2500000);
 
 	sine_table(tunes[0].bin_e);
 	next_tick = time(NULL) + interval;
 	if (exit_time) {
-		exit_time = time(NULL) + exit_time;}
-	fft_buf = (int16_t *) malloc(tunes[0].buf_len * sizeof(int16_t));
-	int length = 1 << tunes[0].bin_e;
-	window_coefs = (int *) malloc(length * sizeof(int));
-	
-	for (int i=0; i<length; i++) {
-		window_coefs[i] = (int)(256*window_fn(i, length));
+		exit_time = time(NULL) + exit_time;
 	}
+	fft_buf = (int16_t *)malloc(tunes[0].buf_len * sizeof(int16_t));
+	int length = 1 << tunes[0].bin_e;
+	window_coefs = (int *)malloc(length * sizeof(int));
+
+	for (int i = 0; i < length; i++) {
+		window_coefs[i] = (int)(256 * window_fn(i, length));
+	}
+
+	return device;
+}
+
+int Initialize(unsigned int startFrequency, unsigned int endFrequency, unsigned int stepSize)
+{	
+	int dev_index;
+
+	////if (dev == NULL)
+	{
+		dev_index = verbose_device_search("0");
+
+		dev = InitializeDevice(dev_index, startFrequency, endFrequency, stepSize, dev);		
+	}
+
+	/*////if (dev2 == NULL)
+	{
+		dev_index = verbose_device_search("1");
+
+		InitializeDevice(dev_index, startFrequency, endFrequency, stepSize);
+	}*/
 
 	return 1;
 }
@@ -499,8 +527,15 @@ int GetAverageMagnitude(tuning_state *ts)
 	return ts->avgMagnitude;
 }
 
-void scanner(void)
+void scanner(int deviceIndex)
 {
+	rtlsdr_dev_t *device;
+
+	if (deviceIndex == 0)
+		device = dev;
+	else
+		device = dev2;
+
 	int i, j, j2, f, n_read, offset, bin_e, bin_len, buf_len, ds, ds_p;
 	int32_t w;
 	struct tuning_state *ts;
@@ -510,10 +545,10 @@ void scanner(void)
 	for (i=0; i<tune_count; i++)
 	{		
 		ts = &tunes[i];
-		f = (int)rtlsdr_get_center_freq(dev);
+		f = (int)rtlsdr_get_center_freq(device);
 		if (f != ts->freq) {
-			retune(dev, ts->freq);}
-		rtlsdr_read_sync(dev, ts->buf8, buf_len, &n_read);
+			retune(device, ts->freq);}
+		rtlsdr_read_sync(device, ts->buf8, buf_len, &n_read);
 
 		GetAverageMagnitude(ts);
 
@@ -646,9 +681,9 @@ unsigned int GetBufferSize()
 	return length;
 }
 
-void GetBins(float *buffer)
+void GetBins(float *buffer, int deviceIndex)
 {
-		scanner();		
+		scanner(deviceIndex);		
 
 		long length = 0;
 				

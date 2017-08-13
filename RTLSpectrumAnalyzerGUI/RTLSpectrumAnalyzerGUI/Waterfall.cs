@@ -446,32 +446,39 @@ namespace RTLSpectrumAnalyzerGUI
             if (frequencyIndex == 0 || frequencyIndex == array1.Length-1)
                 return 0;
 
-            if (array1[frequencyIndex - 1] >= array1[frequencyIndex] || array1[frequencyIndex + 1] >= array1[frequencyIndex])
+            /*////if (array1[frequencyIndex - 1] >= array1[frequencyIndex] || array1[frequencyIndex + 1] >= array1[frequencyIndex])
+                return 0;*/
+
+            double ratio1 = array1[frequencyIndex] / array1[frequencyIndex - 1];
+
+            double ratio2 = array1[frequencyIndex] / array1[frequencyIndex + 1];
+
+            if (ratio1 > 0.9 && ratio1 < 1.1 && ratio2 > 0.9 && ratio2 < 1.1)
                 return 0;
 
 
-            /*double array1NoiseFloor = GetSurroundNoiseFloorStrength(array1, frequencyIndex, 20);
+             /*double array1NoiseFloor = GetSurroundNoiseFloorStrength(array1, frequencyIndex, 20);
 
-            double array2NoiseFloor = GetSurroundNoiseFloorStrength(array2, frequencyIndex, 20);
+             double array2NoiseFloor = GetSurroundNoiseFloorStrength(array2, frequencyIndex, 20);
 
-            double strength1 = array1[frequencyIndex] - array1NoiseFloor;
+             double strength1 = array1[frequencyIndex] - array1NoiseFloor;
 
-            double strength2 = array2[frequencyIndex] - array2NoiseFloor;
+             double strength2 = array2[frequencyIndex] - array2NoiseFloor;
 
-            if (strength2 < 0)
-                return strength2;
+             if (strength2 < 0)
+                 return strength2;
 
-            dif = strength2 - strength1;
-            */
+             dif = strength2 - strength1;
+             */
 
-            /*double noiseFloorDif = array2NoiseFloor - array1NoiseFloor;
+             /*double noiseFloorDif = array2NoiseFloor - array1NoiseFloor;
 
-            dif -= noiseFloorDif;
-            */
+             dif -= noiseFloorDif;
+             */
 
-            ////double ratio = dif / strength2;
+             ////double ratio = dif / strength2;
 
-            double ratio = dif / array1[frequencyIndex];
+             double ratio = dif / array1[frequencyIndex];
             
 
             ////return ratio * Math.Abs(strength2) + ratio * (Math.Abs(strength2) /100);

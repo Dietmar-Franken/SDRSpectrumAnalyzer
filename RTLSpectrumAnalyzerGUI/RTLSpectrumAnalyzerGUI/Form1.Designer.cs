@@ -99,6 +99,9 @@
             this.radioButton6 = new System.Windows.Forms.RadioButton();
             this.radioButton7 = new System.Windows.Forms.RadioButton();
             this.label10 = new System.Windows.Forms.Label();
+            this.listBox1 = new System.Windows.Forms.ListBox();
+            this.button14 = new System.Windows.Forms.Button();
+            this.label15 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chart2)).BeginInit();
             this.groupBox1.SuspendLayout();
@@ -834,11 +837,44 @@
             this.label10.TabIndex = 32;
             this.label10.Text = "Total signal strength for frequency range:";
             // 
+            // listBox1
+            // 
+            this.listBox1.FormattingEnabled = true;
+            this.listBox1.ItemHeight = 16;
+            this.listBox1.Location = new System.Drawing.Point(1291, 833);
+            this.listBox1.Name = "listBox1";
+            this.listBox1.Size = new System.Drawing.Size(198, 84);
+            this.listBox1.TabIndex = 44;
+            // 
+            // button14
+            // 
+            this.button14.Location = new System.Drawing.Point(1423, 800);
+            this.button14.Margin = new System.Windows.Forms.Padding(4);
+            this.button14.Name = "button14";
+            this.button14.Size = new System.Drawing.Size(67, 30);
+            this.button14.TabIndex = 6;
+            this.button14.Text = "Reset";
+            this.button14.UseVisualStyleBackColor = true;
+            this.button14.Click += new System.EventHandler(this.button14_Click);
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label15.Location = new System.Drawing.Point(1291, 794);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(91, 36);
+            this.label15.TabIndex = 45;
+            this.label15.Text = "Session\r\nLeaderboard";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1814, 929);
+            this.Controls.Add(this.label15);
+            this.Controls.Add(this.button14);
+            this.Controls.Add(this.listBox1);
             this.Controls.Add(this.label10);
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox3);
@@ -959,6 +995,9 @@
         private System.Windows.Forms.RadioButton radioButton6;
         private System.Windows.Forms.RadioButton radioButton7;
         private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.ListBox listBox1;
+        private System.Windows.Forms.Button button14;
+        private System.Windows.Forms.Label label15;
     }
 }
 
