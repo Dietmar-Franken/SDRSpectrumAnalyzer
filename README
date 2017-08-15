@@ -31,8 +31,9 @@ You need to have the Visual C++ Redistributable Packages for Visual Studio 2013 
 
 http://www.microsoft.com/en-us/download/details.aspx?id=40784
 
+Use the x86 version for 32 bit systems, even if you've got a 64 bit system, since the code is compiled for 32 bit.
 
-Just download vcredist_x86.exe
+It will work on 64 bit systems so just download vcredist_x86.exe
 
 
 If you haven't already installed the dongle follow this guide here:
