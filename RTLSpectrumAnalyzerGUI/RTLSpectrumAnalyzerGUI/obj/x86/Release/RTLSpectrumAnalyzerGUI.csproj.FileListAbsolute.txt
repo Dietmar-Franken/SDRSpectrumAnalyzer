@@ -4,9 +4,9 @@ C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\bi
 C:\projects\RTLSpectrumAnalyzer\Build\RTLSpectrumAnalyzerGUI.exe.config
 C:\projects\RTLSpectrumAnalyzer\Build\RTLSpectrumAnalyzerGUI.exe
 C:\projects\RTLSpectrumAnalyzer\Build\RTLSpectrumAnalyzerGUI.pdb
-C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\obj\x86\Release\RTLSpectrumAnalyzerGUI.csprojResolveAssemblyReference.cache
 C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\obj\x86\Release\RTLSpectrumAnalyzerGUI.Form1.resources
 C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\obj\x86\Release\RTLSpectrumAnalyzerGUI.Properties.Resources.resources
 C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\obj\x86\Release\RTLSpectrumAnalyzerGUI.csproj.GenerateResource.Cache
 C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\obj\x86\Release\RTLSpectrumAnalyzerGUI.exe
 C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\obj\x86\Release\RTLSpectrumAnalyzerGUI.pdb
+C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\obj\x86\Release\RTLSpectrumAnalyzerGUI.csproj.CoreCompileInputs.cache
