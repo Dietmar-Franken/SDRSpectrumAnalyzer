@@ -102,6 +102,10 @@
             this.listBox1 = new System.Windows.Forms.ListBox();
             this.button14 = new System.Windows.Forms.Button();
             this.label15 = new System.Windows.Forms.Label();
+            this.checkBox3 = new System.Windows.Forms.CheckBox();
+            this.button15 = new System.Windows.Forms.Button();
+            this.textBox11 = new System.Windows.Forms.TextBox();
+            this.checkBox4 = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chart2)).BeginInit();
             this.groupBox1.SuspendLayout();
@@ -867,11 +871,59 @@
             this.label15.TabIndex = 45;
             this.label15.Text = "Session\r\nLeaderboard";
             // 
+            // checkBox3
+            // 
+            this.checkBox3.AutoSize = true;
+            this.checkBox3.Checked = true;
+            this.checkBox3.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox3.Location = new System.Drawing.Point(1505, 271);
+            this.checkBox3.Name = "checkBox3";
+            this.checkBox3.Size = new System.Drawing.Size(92, 21);
+            this.checkBox3.TabIndex = 46;
+            this.checkBox3.Text = "Autoscale";
+            this.checkBox3.UseVisualStyleBackColor = true;
+            // 
+            // button15
+            // 
+            this.button15.Location = new System.Drawing.Point(1587, 902);
+            this.button15.Margin = new System.Windows.Forms.Padding(4);
+            this.button15.Name = "button15";
+            this.button15.Size = new System.Drawing.Size(159, 50);
+            this.button15.TabIndex = 47;
+            this.button15.Text = "Show Increasing Indicator";
+            this.button15.UseVisualStyleBackColor = true;
+            this.button15.Click += new System.EventHandler(this.button15_Click);
+            // 
+            // textBox11
+            // 
+            this.textBox11.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBox11.Location = new System.Drawing.Point(1499, 902);
+            this.textBox11.Margin = new System.Windows.Forms.Padding(4);
+            this.textBox11.Name = "textBox11";
+            this.textBox11.Size = new System.Drawing.Size(80, 22);
+            this.textBox11.TabIndex = 48;
+            this.textBox11.Text = "433.8906MHz";
+            this.textBox11.TextChanged += new System.EventHandler(this.textBox11_TextChanged);
+            // 
+            // checkBox4
+            // 
+            this.checkBox4.AutoSize = true;
+            this.checkBox4.Location = new System.Drawing.Point(1499, 875);
+            this.checkBox4.Name = "checkBox4";
+            this.checkBox4.Size = new System.Drawing.Size(247, 21);
+            this.checkBox4.TabIndex = 49;
+            this.checkBox4.Text = "Enable frequency to be evaluated:";
+            this.checkBox4.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1814, 929);
+            this.ClientSize = new System.Drawing.Size(1814, 955);
+            this.Controls.Add(this.checkBox4);
+            this.Controls.Add(this.textBox11);
+            this.Controls.Add(this.button15);
+            this.Controls.Add(this.checkBox3);
             this.Controls.Add(this.label15);
             this.Controls.Add(this.button14);
             this.Controls.Add(this.listBox1);
@@ -998,6 +1050,10 @@
         private System.Windows.Forms.ListBox listBox1;
         private System.Windows.Forms.Button button14;
         private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.CheckBox checkBox3;
+        private System.Windows.Forms.Button button15;
+        private System.Windows.Forms.TextBox textBox11;
+        private System.Windows.Forms.CheckBox checkBox4;
     }
 }
 

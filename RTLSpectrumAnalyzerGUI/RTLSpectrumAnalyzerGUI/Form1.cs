@@ -111,6 +111,12 @@ namespace RTLSpectrumAnalyzerGUI
         short MAX_LEADER_BOARD_COUNT = 100;
         short MAX_LEADER_BOARD_LIST_COUNT = 4;
 
+        string evaluatedFrequencyString = "";
+
+
+        long prevSoundTime;
+
+        Form2 form2 = new Form2();
 
         class BinData
         {
@@ -174,21 +180,52 @@ namespace RTLSpectrumAnalyzerGUI
         {
             public int index = -1;
             public double strength = 0;
+            public double strengthDif = 0;
             public double rating = 0;
             public double frequency = 0;
 
-            public InterestingSignal(int index, double strength, double frequency)
+            public double totalChange = 0;
+            public double avgChange = 0;            
+
+            private int MAX_AVG_COUNT= 10;
+            private int avgCount = 0;
+
+            public InterestingSignal(int index, double strength, double strengthDif, double frequency)
             {
                 this.index = index;
                 this.strength = strength;
+                this.strengthDif = strengthDif;
 
                 this.frequency = frequency;
             }
+
+            public void SetStrength(double strength)
+            {                                
+                totalChange += (strength - this.strength);
+
+                this.strength = strength;
+
+                avgCount++;
+
+                if (avgCount>=MAX_AVG_COUNT)
+                {
+                    avgChange = totalChange / MAX_AVG_COUNT;
+
+                    totalChange = 0;
+
+                    avgCount = 0;
+                }
+            }
+
+            public double AvgChange()
+            {
+                return avgChange;                
+            }
         }
 
-        private string GetFrequencyString(double frequency)
+        private string GetFrequencyString(double frequency, short decimalPlaces=4)
         {            
-            return (Math.Round((frequency/ 1000000), 4)).ToString() + "MHz";
+            return (Math.Round((frequency/ 1000000), decimalPlaces)).ToString() + "MHz";
         }
         
 
@@ -271,7 +308,7 @@ namespace RTLSpectrumAnalyzerGUI
                             {
                                 interestingSignalIndex = interestingSignals.FindIndex(x => x.index == j);
 
-                                if (interestingSignalIndex >= 0)
+                                if (interestingSignalIndex >= 0 && interestingSignalIndex < 4)
                                 {
                                     interestingSignal = interestingSignals[interestingSignalIndex];
 
@@ -399,11 +436,13 @@ namespace RTLSpectrumAnalyzerGUI
 
 
                 ////if (radioButton6.Checked || maxY <= 0)
-                    chart.ChartAreas[0].AxisY.Minimum = Math.Round(minY, 2);                
+                if (checkBox3.Checked || minY < chart.ChartAreas[0].AxisY.Minimum)
+                    chart.ChartAreas[0].AxisY.Minimum = Math.Round(minY, 2);
                 ///else
-                    ////chart.ChartAreas[0].AxisY.Minimum = 0;
+                ////chart.ChartAreas[0].AxisY.Minimum = 0;
 
-                chart.ChartAreas[0].AxisY.Maximum = Math.Round(maxY, 2);
+                if (checkBox3.Checked || maxY > chart.ChartAreas[0].AxisY.Maximum)
+                    chart.ChartAreas[0].AxisY.Maximum = Math.Round(maxY, 2);
 
 
                 /*if (dataSeries == "Series1" || dataSeries == "Series2")
@@ -541,8 +580,8 @@ namespace RTLSpectrumAnalyzerGUI
                                 {
                                     int i = 0;
 
-                                    while (i < interestingSignals.Count && interestingSignals[i].strength > 0)
-                                        nearStrengthDeltaRange = interestingSignals[i++].strength;                                    
+                                    while (i < interestingSignals.Count && interestingSignals[i].strengthDif > 0)
+                                        nearStrengthDeltaRange = interestingSignals[i++].strengthDif;                                    
                                 }
 
                                 if (nearStrengthDeltaRange>0)
@@ -789,6 +828,8 @@ namespace RTLSpectrumAnalyzerGUI
 
                 series2Max = -99999999;
 
+                string frequencyString;
+
                 int i = 0;
 
                 for (i = 0; i < totalBinCount; i++)
@@ -811,36 +852,41 @@ namespace RTLSpectrumAnalyzerGUI
                         interestingSignals.Add(new InterestingSignal(i, interestingSignalDif));
                         */
 
-
                     interestingSignalIndex = interestingSignals.FindIndex(x => i >= x.index - 10 && i <= x.index + 10);
 
                     if (interestingSignalIndex >= 0)
                     {
+                        frequencyString = GetFrequencyString(dataLowerFrequency + (i * binSize));
+
                         interestingSignal = interestingSignals[interestingSignalIndex];
 
-                        if (interestingSignalDif>interestingSignal.strength)
+                        if (interestingSignalDif>interestingSignal.strengthDif || (frequencyString.ToLower().Replace("mhz", "") == evaluatedFrequencyString.ToLower().Replace("mhz", "") && checkBox4.Checked))
                         {
-                            interestingSignals.RemoveAt(interestingSignalIndex);
-                            interestingSignals.Add(new InterestingSignal(i, interestingSignalDif, dataLowerFrequency + (i * binSize)));
+                            frequencyString = GetFrequencyString(interestingSignal.frequency);
+                            if (!checkBox4.Checked || frequencyString.ToLower().Replace("mhz", "") != evaluatedFrequencyString.ToLower().Replace("mhz", ""))
+                            {
+                                interestingSignals.RemoveAt(interestingSignalIndex);
+                                interestingSignals.Add(new InterestingSignal(i, series2BinData.avgBinArray[i], interestingSignalDif, dataLowerFrequency + (i * binSize)));
+                            }
                         }
                     }
                     else
-                        interestingSignals.Add(new InterestingSignal(i, interestingSignalDif, dataLowerFrequency + (i * binSize)));
+                        interestingSignals.Add(new InterestingSignal(i, series2BinData.avgBinArray[i], interestingSignalDif, dataLowerFrequency + (i * binSize)));
 
 
 
                     interestingSignals.Sort(delegate (InterestingSignal x, InterestingSignal y)
                     {
-                        if (x.strength < y.strength)
+                        if (x.strengthDif < y.strengthDif)
                             return 1;
-                        else if (x.strength == y.strength)
+                        else if (x.strengthDif == y.strengthDif)
                             return 0;
                         else
                             return -1;
                     });
 
-                    if (interestingSignals.Count>4)
-                        interestingSignals.RemoveAt(4);
+                    if (interestingSignals.Count>100)                    
+                        interestingSignals.RemoveAt(100);
 
                     if (!checkBox1.Checked || dif >= difThreshold)
                         ////difBinArray[i] = (float)dif;
@@ -866,12 +912,27 @@ namespace RTLSpectrumAnalyzerGUI
                     if (leaderBoardSignalIndex >= 0)
                     {
                         ////leaderBoardSignals[leaderBoardSignalIndex].rating += (interestingSignals.Count - i);
-                        leaderBoardSignals[leaderBoardSignalIndex].rating += interestingSignals[i].strength;
+                        leaderBoardSignals[leaderBoardSignalIndex].rating += interestingSignals[i].strengthDif;
+
+                        /*if (leaderBoardSignalIndex == 0)
+                            ////if (interestingSignals[i].strength > leaderBoardSignals[leaderBoardSignalIndex].strength + 10)
+                            if (leaderBoardSignals[leaderBoardSignalIndex].AvgChange()>0)
+                            {
+                                System.Media.SystemSounds.Asterisk.Play();
+
+                                form2.BackColor = Color.Red;
+                            }
+                            else
+                                form2.BackColor = Color.Blue;
+                                */
+
+                        ////leaderBoardSignals[leaderBoardSignalIndex].strength = interestingSignals[i].strength;
+                        leaderBoardSignals[leaderBoardSignalIndex].SetStrength(interestingSignals[i].strength);
                     }
                     else
                     {
                         leaderBoardSignals.Add(interestingSignals[i]);
-                        leaderBoardSignals[leaderBoardSignals.Count-1].rating += interestingSignals[i].strength;
+                        leaderBoardSignals[leaderBoardSignals.Count-1].rating += interestingSignals[i].strengthDif;
                     }
                 }
 
@@ -897,14 +958,45 @@ namespace RTLSpectrumAnalyzerGUI
                 }
 
                 listBox1.Items.Clear();
+              
 
-                string frequencyString;
+                long soundDelay;
+
+                bool foundSignal = false;
 
                 i = 0;
-                while(i<leaderBoardSignals.Count && i < MAX_LEADER_BOARD_LIST_COUNT)
+                while(i<leaderBoardSignals.Count)
                 {
-                    frequencyString = GetFrequencyString(leaderBoardSignals[i].frequency);                    
-                    listBox1.Items.Add(frequencyString + ": " + Math.Round(leaderBoardSignals[i].rating/100000));                    
+                    frequencyString = GetFrequencyString(leaderBoardSignals[i].frequency);
+
+                    if (checkBox4.Checked && !foundSignal)
+                    {
+                        if (frequencyString.ToLower().Replace("mhz", "") == evaluatedFrequencyString.ToLower().Replace("mhz",""))
+                        {
+                            ////if (interestingSignals[i].strength > leaderBoardSignals[leaderBoardSignalIndex].strength + 10)
+                            if (leaderBoardSignals[i].AvgChange() > 0)
+                            {
+                                soundDelay = DateTime.Now.Ticks - prevSoundTime;
+                                if (soundDelay > 4000000)
+                                {
+                                    System.Media.SystemSounds.Asterisk.Play();
+
+                                    prevSoundTime = DateTime.Now.Ticks;
+                                }
+
+                                form2.BackColor = Color.Red;
+                            }
+                            else
+                                form2.BackColor = Color.Blue;
+
+                            foundSignal = true;
+                        }
+                    }
+
+                    if (i < MAX_LEADER_BOARD_LIST_COUNT)
+                    {                        
+                        listBox1.Items.Add(frequencyString + ": " + Math.Round(leaderBoardSignals[i].rating / 100000));
+                    }
 
                     i++;
                 }
@@ -1185,6 +1277,8 @@ namespace RTLSpectrumAnalyzerGUI
             {
                 dataLowerFrequency = uint.Parse(textBox1.Text);
                 dataUpperFrequency = uint.Parse(textBox2.Text);
+
+                evaluatedFrequencyString = textBox11.Text.ToLower();
 
                 if (dataUpperFrequency <= dataLowerFrequency)
                     MessageBox.Show("End frequency must be greater than start frequency");
@@ -1658,6 +1752,21 @@ namespace RTLSpectrumAnalyzerGUI
         {
             leaderBoardSignals.Clear();
             listBox1.Items.Clear();
+        }
+
+        private void button15_Click(object sender, EventArgs e)
+        {
+            if (form2 == null)
+                form2 = new Form2();
+
+            form2.Show();
+
+            form2.Focus();
+        }
+
+        private void textBox11_TextChanged(object sender, EventArgs e)
+        {
+            evaluatedFrequencyString = textBox11.Text.ToLower();
         }
 
         private void radioButton5_CheckedChanged(object sender, EventArgs e)
