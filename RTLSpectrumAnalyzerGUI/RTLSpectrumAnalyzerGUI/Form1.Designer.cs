@@ -106,6 +106,9 @@
             this.button15 = new System.Windows.Forms.Button();
             this.textBox11 = new System.Windows.Forms.TextBox();
             this.checkBox4 = new System.Windows.Forms.CheckBox();
+            this.button16 = new System.Windows.Forms.Button();
+            this.button17 = new System.Windows.Forms.Button();
+            this.button18 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chart2)).BeginInit();
             this.groupBox1.SuspendLayout();
@@ -845,7 +848,7 @@
             // 
             this.listBox1.FormattingEnabled = true;
             this.listBox1.ItemHeight = 16;
-            this.listBox1.Location = new System.Drawing.Point(1291, 833);
+            this.listBox1.Location = new System.Drawing.Point(1291, 837);
             this.listBox1.Name = "listBox1";
             this.listBox1.Size = new System.Drawing.Size(198, 84);
             this.listBox1.TabIndex = 44;
@@ -914,12 +917,51 @@
             this.checkBox4.TabIndex = 49;
             this.checkBox4.Text = "Enable frequency to be evaluated:";
             this.checkBox4.UseVisualStyleBackColor = true;
+            this.checkBox4.CheckedChanged += new System.EventHandler(this.checkBox4_CheckedChanged);
+            // 
+            // button16
+            // 
+            this.button16.Location = new System.Drawing.Point(1165, 892);
+            this.button16.Margin = new System.Windows.Forms.Padding(4);
+            this.button16.Name = "button16";
+            this.button16.Size = new System.Drawing.Size(119, 63);
+            this.button16.TabIndex = 50;
+            this.button16.Text = "Analyze Leaderboard frequencies";
+            this.button16.UseVisualStyleBackColor = true;
+            this.button16.Click += new System.EventHandler(this.button16_Click);
+            // 
+            // button17
+            // 
+            this.button17.Enabled = false;
+            this.button17.Location = new System.Drawing.Point(1291, 928);
+            this.button17.Margin = new System.Windows.Forms.Padding(4);
+            this.button17.Name = "button17";
+            this.button17.Size = new System.Drawing.Size(98, 27);
+            this.button17.TabIndex = 51;
+            this.button17.Text = "Record Far";
+            this.button17.UseVisualStyleBackColor = true;
+            this.button17.Click += new System.EventHandler(this.button17_Click);
+            // 
+            // button18
+            // 
+            this.button18.Enabled = false;
+            this.button18.Location = new System.Drawing.Point(1392, 928);
+            this.button18.Margin = new System.Windows.Forms.Padding(4);
+            this.button18.Name = "button18";
+            this.button18.Size = new System.Drawing.Size(117, 27);
+            this.button18.TabIndex = 52;
+            this.button18.Text = "Record Near";
+            this.button18.UseVisualStyleBackColor = true;
+            this.button18.Click += new System.EventHandler(this.button18_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1814, 955);
+            this.ClientSize = new System.Drawing.Size(1814, 968);
+            this.Controls.Add(this.button18);
+            this.Controls.Add(this.button17);
+            this.Controls.Add(this.button16);
             this.Controls.Add(this.checkBox4);
             this.Controls.Add(this.textBox11);
             this.Controls.Add(this.button15);
@@ -1054,6 +1096,9 @@
         private System.Windows.Forms.Button button15;
         private System.Windows.Forms.TextBox textBox11;
         private System.Windows.Forms.CheckBox checkBox4;
+        private System.Windows.Forms.Button button16;
+        private System.Windows.Forms.Button button17;
+        private System.Windows.Forms.Button button18;
     }
 }
 

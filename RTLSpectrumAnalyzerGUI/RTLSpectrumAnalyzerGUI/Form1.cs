@@ -116,6 +116,16 @@ namespace RTLSpectrumAnalyzerGUI
 
         long prevSoundTime;
 
+        System.Windows.Forms.Timer eventTimer;
+
+        int currentLeaderBoardSignalIndex = -1;
+
+        bool analyzingLeaderBoardSignals = false;
+
+        string originalStartFrequency;
+
+        string originalEndFrequency;
+
         Form2 form2 = new Form2();
 
         class BinData
@@ -207,9 +217,9 @@ namespace RTLSpectrumAnalyzerGUI
 
                 avgCount++;
 
-                if (avgCount>=MAX_AVG_COUNT)
+                if (avgCount>=10)//MAX_AVG_COUNT)
                 {
-                    avgChange = totalChange / MAX_AVG_COUNT;
+                    avgChange = totalChange / 10;// MAX_AVG_COUNT;
 
                     totalChange = 0;
 
@@ -221,14 +231,28 @@ namespace RTLSpectrumAnalyzerGUI
             {
                 return avgChange;                
             }
+
+            public void ResetAvgChange()
+            {
+                avgChange = 0;
+            }
         }
 
         private string GetFrequencyString(double frequency, short decimalPlaces=4)
         {            
             return (Math.Round((frequency/ 1000000), decimalPlaces)).ToString() + "MHz";
         }
-        
 
+        private double GetFrequencyValue(string frequency, short decimalPlaces = 4)
+        {
+            return Math.Round(double.Parse(frequency), decimalPlaces);
+        }
+
+        private double FrequencyToMHz(double frequency, short decimalPlaces = 4)
+        {
+            return Math.Round(frequency / 1000000, decimalPlaces);
+        }
+        
         private double RangeChanged(System.Windows.Forms.DataVisualization.Charting.Chart chart, string dataSeries, float[] data, long lowerIndex, long upperIndex, double newLowerFrequency, ref double graphBinFreqInc)
         {
             if (data.Length > 0)
@@ -828,7 +852,15 @@ namespace RTLSpectrumAnalyzerGUI
 
                 series2Max = -99999999;
 
+                evaluatedFrequencyString = evaluatedFrequencyString.ToLower().Replace("mhz", "");
+                ////double evaluatedFrequency = Math.Round(double.Parse(evaluatedFrequencyString), 3);
+
+                double evaluatedFrequency = GetFrequencyValue(evaluatedFrequencyString, 3);
+
+
                 string frequencyString;
+
+                double frequencyValue;
 
                 int i = 0;
 
@@ -847,46 +879,80 @@ namespace RTLSpectrumAnalyzerGUI
                     dif = Waterfall.CalculateStrengthDifference2(series1BinData.avgBinArray, series2BinData.avgBinArray, i);
                     ////dif = Waterfall.CalculateStrengthDifference(series1BinData.avgBinArray, series2BinData.avgBinArray, i);
 
+                    frequencyString = GetFrequencyString(dataLowerFrequency + (i * binSize));
+
+                    ////frequencyValue = Math.Round(double.Parse(frequencyString.ToLower().Replace("mhz", "")), 3);
+
+
+                    frequencyValue = GetFrequencyValue(frequencyString.ToLower().Replace("mhz", ""), 3);
+
 
                     /*if (!interestingSignals.Exists(x => i >= x.index-10 &&  i <= x.index+10))
                         interestingSignals.Add(new InterestingSignal(i, interestingSignalDif));
                         */
 
-                    interestingSignalIndex = interestingSignals.FindIndex(x => i >= x.index - 10 && i <= x.index + 10);
 
-                    if (interestingSignalIndex >= 0)
+                    if (checkBox4.Checked)
                     {
-                        frequencyString = GetFrequencyString(dataLowerFrequency + (i * binSize));
+                        
+
+                        if (frequencyValue == evaluatedFrequency)
+                        {
+                            interestingSignalIndex = interestingSignals.FindIndex(x => i == x.index);
+
+                            if (interestingSignalIndex == -1)
+                                interestingSignals.Add(new InterestingSignal(i, series2BinData.avgBinArray[i], interestingSignalDif, dataLowerFrequency + (i * binSize)));
+                        }
+
+
+                            
+                            
+                    }
+
+                        
+                        interestingSignalIndex = interestingSignals.FindIndex(x => i >= x.index - 10 && i <= x.index + 10);
+
+                        if (interestingSignalIndex >= 0)
+                        {
+
+                        
 
                         interestingSignal = interestingSignals[interestingSignalIndex];
 
-                        if (interestingSignalDif>interestingSignal.strengthDif || (frequencyString.ToLower().Replace("mhz", "") == evaluatedFrequencyString.ToLower().Replace("mhz", "") && checkBox4.Checked))
-                        {
-                            frequencyString = GetFrequencyString(interestingSignal.frequency);
-                            if (!checkBox4.Checked || frequencyString.ToLower().Replace("mhz", "") != evaluatedFrequencyString.ToLower().Replace("mhz", ""))
+                            if (interestingSignalDif > interestingSignal.strengthDif)// || (frequencyValue == evaluatedFrequency && checkBox4.Checked))
                             {
+                            frequencyValue = FrequencyToMHz(interestingSignal.frequency, 3);
+
+                            if (!checkBox4.Checked || frequencyValue != evaluatedFrequency)
+                                {
+                                
+
                                 interestingSignals.RemoveAt(interestingSignalIndex);
-                                interestingSignals.Add(new InterestingSignal(i, series2BinData.avgBinArray[i], interestingSignalDif, dataLowerFrequency + (i * binSize)));
+                                    //interestingSignals.Add(new InterestingSignal(i, series2BinData.avgBinArray[i], interestingSignalDif, dataLowerFrequency + (i * binSize)));
+                                }
                             }
                         }
-                    }
-                    else
-                        interestingSignals.Add(new InterestingSignal(i, series2BinData.avgBinArray[i], interestingSignalDif, dataLowerFrequency + (i * binSize)));
-
-
-
-                    interestingSignals.Sort(delegate (InterestingSignal x, InterestingSignal y)
-                    {
-                        if (x.strengthDif < y.strengthDif)
-                            return 1;
-                        else if (x.strengthDif == y.strengthDif)
-                            return 0;
                         else
-                            return -1;
-                    });
+                            interestingSignals.Add(new InterestingSignal(i, series2BinData.avgBinArray[i], interestingSignalDif, dataLowerFrequency + (i * binSize)));
 
-                    if (interestingSignals.Count>100)                    
-                        interestingSignals.RemoveAt(100);
+
+
+                        interestingSignals.Sort(delegate (InterestingSignal x, InterestingSignal y)
+                        {
+                            if (x.strengthDif < y.strengthDif)
+                                return 1;
+                            else if (x.strengthDif == y.strengthDif)
+                                return 0;
+                            else
+                                return -1;
+                        });
+
+                        if (interestingSignals.Count > 100)
+                        {                            
+                            if (FrequencyToMHz(interestingSignals[interestingSignals.Count - 1].frequency, 3) != evaluatedFrequency)
+                                    interestingSignals.RemoveAt(100);
+                        }
+                    
 
                     if (!checkBox1.Checked || dif >= difThreshold)
                         ////difBinArray[i] = (float)dif;
@@ -905,101 +971,141 @@ namespace RTLSpectrumAnalyzerGUI
                         maxY = dif;
                 }
 
-                for (i = 0; i < interestingSignals.Count; i++)
+                //if (!analyzingLeaderBoardSignals)
                 {
-                    leaderBoardSignalIndex = leaderBoardSignals.FindIndex(x => interestingSignals[i].index == x.index);
-
-                    if (leaderBoardSignalIndex >= 0)
+                    for (i = 0; i < interestingSignals.Count; i++)
                     {
-                        ////leaderBoardSignals[leaderBoardSignalIndex].rating += (interestingSignals.Count - i);
-                        leaderBoardSignals[leaderBoardSignalIndex].rating += interestingSignals[i].strengthDif;
+                        leaderBoardSignalIndex = leaderBoardSignals.FindIndex(x => FrequencyToMHz(interestingSignals[i].frequency,3) == FrequencyToMHz(x.frequency,3));
 
-                        /*if (leaderBoardSignalIndex == 0)
-                            ////if (interestingSignals[i].strength > leaderBoardSignals[leaderBoardSignalIndex].strength + 10)
-                            if (leaderBoardSignals[leaderBoardSignalIndex].AvgChange()>0)
-                            {
-                                System.Media.SystemSounds.Asterisk.Play();
-
-                                form2.BackColor = Color.Red;
-                            }
-                            else
-                                form2.BackColor = Color.Blue;
-                                */
-
-                        ////leaderBoardSignals[leaderBoardSignalIndex].strength = interestingSignals[i].strength;
-                        leaderBoardSignals[leaderBoardSignalIndex].SetStrength(interestingSignals[i].strength);
-                    }
-                    else
-                    {
-                        leaderBoardSignals.Add(interestingSignals[i]);
-                        leaderBoardSignals[leaderBoardSignals.Count-1].rating += interestingSignals[i].strengthDif;
-                    }
-                }
-
-                leaderBoardSignals.Sort(delegate (InterestingSignal x, InterestingSignal y)
-                {
-                    if (x.rating < y.rating)
-                        return 1;
-                    else if (x.rating == y.rating)
-                        return 0;
-                    else
-                        return -1;
-                });
-
-
-                if (leaderBoardSignals.Count>MAX_LEADER_BOARD_COUNT)
-                {
-                    i = leaderBoardSignals.Count - 1;
-                    while (i > MAX_LEADER_BOARD_COUNT - 1)
-                    {
-                        leaderBoardSignals.RemoveAt(i);
-                        i--;
-                    }
-                }
-
-                listBox1.Items.Clear();
-              
-
-                long soundDelay;
-
-                bool foundSignal = false;
-
-                i = 0;
-                while(i<leaderBoardSignals.Count)
-                {
-                    frequencyString = GetFrequencyString(leaderBoardSignals[i].frequency);
-
-                    if (checkBox4.Checked && !foundSignal)
-                    {
-                        if (frequencyString.ToLower().Replace("mhz", "") == evaluatedFrequencyString.ToLower().Replace("mhz",""))
+                        if (leaderBoardSignalIndex >= 0)
                         {
-                            ////if (interestingSignals[i].strength > leaderBoardSignals[leaderBoardSignalIndex].strength + 10)
-                            if (leaderBoardSignals[i].AvgChange() > 0)
-                            {
-                                soundDelay = DateTime.Now.Ticks - prevSoundTime;
-                                if (soundDelay > 4000000)
+                            ////leaderBoardSignals[leaderBoardSignalIndex].rating += (interestingSignals.Count - i);
+
+                            if (!analyzingLeaderBoardSignals)
+                                leaderBoardSignals[leaderBoardSignalIndex].rating += interestingSignals[i].strengthDif;
+
+                            /*if (leaderBoardSignalIndex == 0)
+                                ////if (interestingSignals[i].strength > leaderBoardSignals[leaderBoardSignalIndex].strength + 10)
+                                if (leaderBoardSignals[leaderBoardSignalIndex].AvgChange()>0)
                                 {
                                     System.Media.SystemSounds.Asterisk.Play();
 
-                                    prevSoundTime = DateTime.Now.Ticks;
+                                    form2.BackColor = Color.Red;
                                 }
+                                else
+                                    form2.BackColor = Color.Blue;
+                                    */
 
-                                form2.BackColor = Color.Red;
-                            }
-                            else
-                                form2.BackColor = Color.Blue;
-
-                            foundSignal = true;
+                            ////leaderBoardSignals[leaderBoardSignalIndex].strength = interestingSignals[i].strength;
+                            leaderBoardSignals[leaderBoardSignalIndex].SetStrength(interestingSignals[i].strength);
+                        }
+                        else if (!analyzingLeaderBoardSignals)
+                        {
+                            leaderBoardSignals.Add(interestingSignals[i]);
+                            leaderBoardSignals[leaderBoardSignals.Count - 1].rating += interestingSignals[i].strengthDif;
                         }
                     }
 
-                    if (i < MAX_LEADER_BOARD_LIST_COUNT)
-                    {                        
-                        listBox1.Items.Add(frequencyString + ": " + Math.Round(leaderBoardSignals[i].rating / 100000));
-                    }
+                    if (!analyzingLeaderBoardSignals)
+                    {
+                        leaderBoardSignals.Sort(delegate (InterestingSignal x, InterestingSignal y)
+                        {
+                            if (x.rating < y.rating)
+                                return 1;
+                            else if (x.rating == y.rating)
+                                return 0;
+                            else
+                                return -1;
+                        });
 
-                    i++;
+
+                        if (leaderBoardSignals.Count > MAX_LEADER_BOARD_COUNT)
+                        {
+                            i = leaderBoardSignals.Count - 1;
+                            while (i > MAX_LEADER_BOARD_COUNT - 1)
+                            {
+                                if (FrequencyToMHz(leaderBoardSignals[i].frequency, 3) != evaluatedFrequency)
+                                    leaderBoardSignals.RemoveAt(i);
+                                else
+                                    leaderBoardSignals.RemoveAt(i-1);
+                                i--;
+                            }
+                        }
+
+                        listBox1.Items.Clear();
+                    }
                 }
+                    long soundDelay;
+
+                    bool foundSignal = false;
+                    int soundFrequency;
+
+                    i = 0;
+                    while (i < leaderBoardSignals.Count)
+                    {
+                        frequencyValue = FrequencyToMHz(leaderBoardSignals[i].frequency, 3);
+
+                        frequencyString = GetFrequencyString(leaderBoardSignals[i].frequency);
+
+                    if (checkBox4.Checked && !foundSignal)
+                        {
+                            if (frequencyValue == evaluatedFrequency)
+                            {
+                                ////if (interestingSignals[i].strength > leaderBoardSignals[leaderBoardSignalIndex].strength + 10)
+                                if (leaderBoardSignals[i].AvgChange() > 10)
+                                {
+                                    soundDelay = DateTime.Now.Ticks - prevSoundTime;
+                                    if (soundDelay > 10000000)
+                                    {
+                                    /*System.Media.SystemSounds.Asterisk.Play();
+                                    Thread.Sleep(1000);
+                                    System.Media.SystemSounds.Beep.Play();
+                                    Thread.Sleep(1000);
+                                    System.Media.SystemSounds.Exclamation.Play();
+                                    Thread.Sleep(1000);
+                                    */
+                                    ////System.Media.SystemSounds.Hand.Play();
+
+                                    soundFrequency = (int) leaderBoardSignals[i].AvgChange();
+
+                                    if (soundFrequency < 100)
+                                        soundFrequency = 100;
+                                    else if (soundFrequency > 17000)
+                                        soundFrequency = 17000;
+
+                                    Console.Beep(soundFrequency, 1000);
+
+                                    /*Thread.Sleep(1000);
+                                    System.Media.SystemSounds.Question.Play();
+                                    */
+
+
+
+
+
+                                    prevSoundTime = DateTime.Now.Ticks;
+
+                                        leaderBoardSignals[i].ResetAvgChange();
+                                    }
+
+                                    form2.BackColor = Color.Red;
+                                }
+                                else
+                                    form2.BackColor = Color.Blue;
+
+                                foundSignal = true;
+                            }
+                        }
+
+                        if (!analyzingLeaderBoardSignals)
+                            if (i < MAX_LEADER_BOARD_LIST_COUNT)
+                            {
+                                listBox1.Items.Add(frequencyString + ": " + Math.Round(leaderBoardSignals[i].rating / 100000));
+                            }
+
+                        i++;
+                    }
+                
 
 
 
@@ -1146,6 +1252,8 @@ namespace RTLSpectrumAnalyzerGUI
                             button4.Enabled = true;
                             button5.Enabled = true;
                             button3.Text = "Record Series 1 Data (Far)";
+                            button17.Text = "Record Far";
+                            button18.Enabled = true;
 
                             this.Cursor = Cursors.Arrow;
                         }));
@@ -1161,9 +1269,11 @@ namespace RTLSpectrumAnalyzerGUI
                 {
                     button4.Enabled = false;
                     button5.Enabled = false;
+                    button18.Enabled = false;
                 }
 
                 button3.Text = "Stop Recording";
+                button17.Text = "Stop";
             }
             else
             {
@@ -1221,7 +1331,10 @@ namespace RTLSpectrumAnalyzerGUI
                         {
                             button4.Enabled = true;
                             button5.Text = "Record Series 2 Data (Near)";
+                            button18.Text = "Record Near";
+
                             button3.Enabled = true;
+                            button17.Enabled = true;
 
                             this.Cursor = Cursors.Arrow;
                         }));
@@ -1235,10 +1348,12 @@ namespace RTLSpectrumAnalyzerGUI
                 if (deviceCount == 1)
                 {
                     button3.Enabled = false;
+                    button17.Enabled = false;
                     button4.Enabled = false;
                 }
 
                 button5.Text = "Stop Recording";
+                button18.Text = "Stop";
             }
             else
             {
@@ -1263,8 +1378,8 @@ namespace RTLSpectrumAnalyzerGUI
         {
             TextWriter tw = new StreamWriter("config.txt");
 
-            tw.WriteLine(dataLowerFrequency);
-            tw.WriteLine(dataUpperFrequency);
+            tw.WriteLine(originalStartFrequency);
+            tw.WriteLine(originalEndFrequency);
             tw.WriteLine(stepSize);
             tw.WriteLine(difThreshold);
 
@@ -1277,6 +1392,13 @@ namespace RTLSpectrumAnalyzerGUI
             {
                 dataLowerFrequency = uint.Parse(textBox1.Text);
                 dataUpperFrequency = uint.Parse(textBox2.Text);
+
+                if (!analyzingLeaderBoardSignals)
+                {
+                    originalStartFrequency = textBox1.Text;
+                    originalEndFrequency = textBox2.Text;
+                }
+
 
                 evaluatedFrequencyString = textBox11.Text.ToLower();
 
@@ -1326,10 +1448,7 @@ namespace RTLSpectrumAnalyzerGUI
                             series1BinData = new BinData(0, "Series1");
 
                         //if (series2BinData == null)
-                            series2BinData = new BinData(0, "Series2");
-
-                        button3.Enabled = true;
-                        button5.Enabled = true;
+                            series2BinData = new BinData(0, "Series2");                        
 
                         resetGraph = true;
 
@@ -1341,18 +1460,25 @@ namespace RTLSpectrumAnalyzerGUI
 
                         textBox7.Text = "0";
                         textBox8.Text = "0";
-
-                        button3.Enabled = false;
-                        button5.Enabled = false;
-
+                       
                         chart1.Series["Series1"].Points.Clear();
                         chart2.Series["Series1"].Points.Clear();
 
                         chart1.Series["Series2"].Points.Clear();
                         chart2.Series["Series2"].Points.Clear();
 
+                        chart2.Series["Series3"].Points.Clear();
+
+
+                        ClearSeries1();
+                        ClearSeries2();
+
+
                         button3.Enabled = true;
                         button5.Enabled = true;
+
+                        button17.Enabled = true;
+                        button18.Enabled = true;
                     }
                 }
             }
@@ -1629,7 +1755,7 @@ namespace RTLSpectrumAnalyzerGUI
 
         public Form1()
         {
-            InitializeComponent();
+            InitializeComponent();            
 
             chart1.Series["Series1"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastLine;
             chart1.Series["Series2"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastLine;
@@ -1752,7 +1878,22 @@ namespace RTLSpectrumAnalyzerGUI
         {
             leaderBoardSignals.Clear();
             listBox1.Items.Clear();
+
+            currentLeaderBoardSignalIndex = -1;
+
+            button16.Text = "Analyze Leader Board Frequencies";
+
+            textBox1.Text = originalStartFrequency;
+
+            textBox2.Text = originalEndFrequency;
+
+            analyzingLeaderBoardSignals = false;
+
+            checkBox4.Checked = false;
+
+            button4.PerformClick();
         }
+            
 
         private void button15_Click(object sender, EventArgs e)
         {
@@ -1767,6 +1908,214 @@ namespace RTLSpectrumAnalyzerGUI
         private void textBox11_TextChanged(object sender, EventArgs e)
         {
             evaluatedFrequencyString = textBox11.Text.ToLower();
+        }
+
+        private void NewSettingsThread(Object myObject, EventArgs myEventArgs)
+        {
+            if (eventTimer != null)
+            {
+                //eventTimer = (System.Windows.Forms.Timer)myObject;
+                eventTimer.Stop();
+
+                eventTimer.Interval = 10000000;
+
+                eventTimer.Dispose();
+
+                eventTimer = null;
+
+                button4.PerformClick();
+
+                //eventTimer.Enabled = false;
+
+
+                //eventTimer.Dispose();
+
+                /*eventTimer.Tick += new EventHandler(StartRecordingThread);
+                eventTimer.Interval = 1000;
+                eventTimer.Start();*/
+
+            //button3.PerformClick();
+        }
+    }
+
+        private void StartRecordingThread(Object myObject, EventArgs myEventArgs)
+        {
+            button4.PerformClick();
+
+            eventTimer = new System.Windows.Forms.Timer();
+
+            eventTimer.Tick += new EventHandler(StartRecordingThread);
+            eventTimer.Interval = 1000;
+            eventTimer.Start();
+        }
+
+        private void StopRecordingThread()
+        {
+            //Some process
+            this.Invoke(new Action(() =>
+            {
+                //button1.PerformClick();
+                if (button3.Text == "Stop Recording")
+                    button3.PerformClick();
+                else
+                if (button5.Text == "Stop Recording")
+                    button5.PerformClick();
+
+
+                eventTimer.Tick += new EventHandler(NewSettingsThread);
+                eventTimer.Interval = 1000;
+                ////eventTimer.AutoReset = false;
+                eventTimer.Start();
+
+                //System.Threading.Thread th = new System.Threading.Thread(NewSettingsThread);
+                //th.Start();
+
+                /*while (!button4.Enabled)
+                    Thread.Sleep(1000);
+
+                button4.PerformClick();*/
+            }));
+        }
+
+        private void button16_Click(object sender, EventArgs e)
+        {
+            if (leaderBoardSignals.Count > 0)
+            {
+                currentLeaderBoardSignalIndex++;
+
+                if (currentLeaderBoardSignalIndex == 4)
+                {
+                    button16.Text = "Analyze Leader Board Frequencies";
+
+                    currentLeaderBoardSignalIndex = -1;
+
+                    analyzingLeaderBoardSignals = false;
+
+                    checkBox4.Checked = false;
+
+                    textBox1.Text = originalStartFrequency;
+
+                    textBox2.Text = originalEndFrequency;
+
+                    button4.PerformClick();
+                }
+                else
+                {
+                    button16.Text = "Next";
+
+                    analyzingLeaderBoardSignals = true;
+
+                    checkBox4.Checked = true;
+
+
+                    if (currentLeaderBoardSignalIndex == 0)
+                    {
+                        originalStartFrequency = textBox1.Text;
+
+                        originalEndFrequency = textBox2.Text;
+                    }
+
+                    textBox1.Text = (Math.Round(leaderBoardSignals[currentLeaderBoardSignalIndex].frequency) - 400000).ToString();
+
+                    textBox2.Text = (Math.Round(leaderBoardSignals[currentLeaderBoardSignalIndex].frequency) + 600000).ToString();
+
+                    textBox11.Text = GetFrequencyString(leaderBoardSignals[currentLeaderBoardSignalIndex].frequency);
+
+
+
+                    //System.Threading.Thread th = new System.Threading.Thread(StopRecordingThread);
+                    //th.Start();
+
+
+
+
+                    if (button3.Text == "Stop Recording")
+                        button3.PerformClick();
+                    else
+                        if (button5.Text == "Stop Recording")
+                        button5.PerformClick();
+
+                    eventTimer = new System.Windows.Forms.Timer();
+
+                    eventTimer.Tick += new EventHandler(NewSettingsThread);
+                    eventTimer.Interval = 1000;
+                    ////eventTimer.AutoReset = false;
+                    eventTimer.Start();
+
+                    /*Task.Factory.StartNew(() =>
+                    {
+                        try
+                        {
+                            this.Invoke(new Action(() =>
+                            {
+
+                        currentLeaderBoardSignalIndex++;
+
+                        /*textBox1.Text = (Math.Round(leaderBoardSignals[currentLeaderBoardSignalIndex].frequency) - 500000).ToString();
+
+                        textBox2.Text = (Math.Round(leaderBoardSignals[currentLeaderBoardSignalIndex].frequency)+500000).ToString();
+                        */
+                    /*  if (button3.Text == "Stop Recording")
+                          button3.PerformClick();
+                      else
+                      if (button5.Text == "Stop Recording")
+                          button5.PerformClick();
+
+                              Task.Factory.StartNew(() =>
+                              {
+                                  try
+                                  {
+                                      this.Invoke(new Action(() =>
+                                      {
+
+
+                                          //Thread.Sleep(10000);
+
+                                          while (!button4.Enabled);
+                                              //Thread.Sleep(1000);
+
+                                          button4.PerformClick();
+                                          }));
+                      }
+                      catch (Exception ex)
+                      {
+
+                      }
+                  });
+                              /*
+                                          //Thread.Sleep(10000);
+
+                                          while (!button3.Enabled)
+                                              Thread.Sleep(1000);
+
+                                          button3.PerformClick();
+                                          */
+
+                    /* }));
+        }
+        catch (Exception ex)
+        {
+
+        }
+        });
+        */
+                }
+            }
+        }
+
+        private void button17_Click(object sender, EventArgs e)
+        {
+            button3.PerformClick();
+        }
+
+        private void button18_Click(object sender, EventArgs e)
+        {
+            button5.PerformClick();
+        }
+
+        private void checkBox4_CheckedChanged(object sender, EventArgs e)
+        {
+
         }
 
         private void radioButton5_CheckedChanged(object sender, EventArgs e)
