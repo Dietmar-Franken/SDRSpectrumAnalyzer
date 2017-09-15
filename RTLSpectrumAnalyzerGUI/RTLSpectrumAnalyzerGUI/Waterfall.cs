@@ -453,8 +453,8 @@ namespace RTLSpectrumAnalyzerGUI
 
             double ratio2 = array1[frequencyIndex] / array1[frequencyIndex + 1];
 
-            if (ratio1 > 0.9 && ratio1 < 1.1 && ratio2 > 0.9 && ratio2 < 1.1)
-                return 0;
+            /*if (ratio1 > 0.9 && ratio1 < 1.1 && ratio2 > 0.9 && ratio2 < 1.1)
+                return 0;*/
 
 
              /*double array1NoiseFloor = GetSurroundNoiseFloorStrength(array1, frequencyIndex, 20);
