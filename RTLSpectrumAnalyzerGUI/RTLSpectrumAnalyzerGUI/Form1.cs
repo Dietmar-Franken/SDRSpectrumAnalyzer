@@ -1164,42 +1164,243 @@ namespace RTLSpectrumAnalyzerGUI
             }            
         }
 
+        private void AddGradientPoint(System.Windows.Forms.DataVisualization.Charting.Chart chart, TextBox textBox, double gradientValue)
+        {
+            textBox.Text = gradientValue.ToString();
+
+            ////graphPoint = new System.Windows.Forms.DataVisualization.Charting.DataPoint(chart4.Series["Series1"].Points.Count, gradient);
+            System.Windows.Forms.DataVisualization.Charting.DataPoint graphPoint = new System.Windows.Forms.DataVisualization.Charting.DataPoint(chart4.Series["Series1"].Points.Count, gradientValue);
+
+
+            if (chart.Series["Series1"].Points.Count > 100)
+            {
+                chart.Series["Series1"].Points.RemoveAt(0);
+
+                for (int j = 0; j < chart.Series["Series1"].Points.Count; j++)
+                {
+                    chart.Series["Series1"].Points[j].XValue--;
+                }
+            }
+
+            chart.Series["Series1"].Points.Add(graphPoint);
+
+            if (chart.Series["Series1"].Points.Count > 10)
+            {
+                double minY = 99999999;
+                double maxY = -99999999;
+
+                for (int j = 0; j < chart.Series["Series1"].Points.Count; j++)
+                {
+                    ////chart.Series["Series1"].Points[j].XValue--;
+
+                    if (chart.Series["Series1"].Points[j].YValues[0] < minY)
+                        minY = chart.Series["Series1"].Points[j].YValues[0];
+
+                    if (chart.Series["Series1"].Points[j].YValues[0] > maxY)
+                        maxY = chart.Series["Series1"].Points[j].YValues[0];
+                }
+
+                if (minY == maxY)
+                {
+                    maxY++;
+                    minY--;
+                }
+
+                chart.ChartAreas[0].AxisY.Maximum = maxY;
+                chart.ChartAreas[0].AxisY.Minimum = minY;
+            }
+
+        }
+
+
 
         private void AddPointToAverageGraph(float value)
         {
             System.Windows.Forms.DataVisualization.Charting.DataPoint graphPoint = new System.Windows.Forms.DataVisualization.Charting.DataPoint(chart3.Series["Series1"].Points.Count, value);
-            
 
-            if (chart3.Series["Series1"].Points.Count > 100)
+            if (chart3.Series["Series1"].Points.Count > 10)
             {
-                chart3.Series["Series1"].Points.RemoveAt(0);
-
-
                 double minY = 99999999;
                 double maxY = -99999999;
 
                 for (int j = 0; j < chart3.Series["Series1"].Points.Count; j++)
                 {
-                    chart3.Series["Series1"].Points[j].XValue--;
+                    ////chart3.Series["Series1"].Points[j].XValue--;
 
                     if (chart3.Series["Series1"].Points[j].YValues[0] < minY)
                         minY = chart3.Series["Series1"].Points[j].YValues[0];
 
                     if (chart3.Series["Series1"].Points[j].YValues[0] > maxY)
                         maxY = chart3.Series["Series1"].Points[j].YValues[0];
-
-                    
-                    chart3.ChartAreas[0].AxisY.Maximum = maxY;
-                    chart3.ChartAreas[0].AxisY.Minimum = minY;
                 }
 
-                chart3.ResetAutoValues();
+                if (minY == maxY)
+                {
+                    maxY++;
+                    minY--;
+                }
 
-                ////chart3.ChartAreas[0].RecalculateAxesScale();
+                chart3.ChartAreas[0].AxisY.Maximum = maxY;
+                chart3.ChartAreas[0].AxisY.Minimum = minY;
+            }
+
+
+            ////chart3.ResetAutoValues();
+
+
+
+            if (chart3.Series["Series1"].Points.Count > 100)
+            {
+                chart3.Series["Series1"].Points.RemoveAt(0);
+
+                for (int j = 0; j < chart3.Series["Series1"].Points.Count; j++)
+                {
+                    chart3.Series["Series1"].Points[j].XValue--;
+                }
+
+                    ////chart3.ChartAreas[0].RecalculateAxesScale();
             }
 
             chart3.Series["Series1"].Points.Add(graphPoint);
 
+            if (chart3.Series["Series1"].Points.Count > 1)
+            {
+                double gradient = 0;
+                double totalGradient = 0;
+                double avgGradient = 0;
+
+                for (int j = 1; j < chart3.Series["Series1"].Points.Count; j++)
+                {
+                    totalGradient += (chart3.Series["Series1"].Points[j].YValues[0] - chart3.Series["Series1"].Points[j - 1].YValues[0]);
+                }
+
+                avgGradient = totalGradient / (chart3.Series["Series1"].Points.Count - 1);
+
+                if (chart3.Series["Series1"].Points.Count > 1)
+                {
+                    gradient = chart3.Series["Series1"].Points[chart3.Series["Series1"].Points.Count - 1].YValues[0] - chart3.Series["Series1"].Points[chart3.Series["Series1"].Points.Count - 2].YValues[0];
+                }
+
+                AddGradientPoint(chart4, textBox12, avgGradient);
+            }
+
+
+            if (chart4.Series["Series1"].Points.Count > 1)
+            {
+                double gradient2 = 0;
+                double totalGradient2 = 0;
+                double avgGradient2 = 0;
+
+                if (chart4.Series["Series1"].Points.Count > 1)
+                    gradient2 = chart4.Series["Series1"].Points[chart4.Series["Series1"].Points.Count - 1].YValues[0] - chart4.Series["Series1"].Points[chart4.Series["Series1"].Points.Count - 2].YValues[0];
+
+                ////int avgGradient2PointsCount = 10;
+                int avgGradient2PointsCount = chart4.Series["Series1"].Points.Count;
+
+                if (chart4.Series["Series1"].Points.Count >= avgGradient2PointsCount)
+                {
+
+                    for (int j = chart4.Series["Series1"].Points.Count - 1; j > chart4.Series["Series1"].Points.Count - avgGradient2PointsCount; j--)
+                    {
+                        totalGradient2 += (chart4.Series["Series1"].Points[j].YValues[0] - chart4.Series["Series1"].Points[j - 1].YValues[0]);
+                    }
+
+                    avgGradient2 = totalGradient2 / (avgGradient2PointsCount - 1);
+                }
+
+                AddGradientPoint(chart5, textBox13, avgGradient2);
+
+                ////AddGradientPoint(chart5, textBox13, gradient2);
+            }
+
+            ////textBox12.Text = (totalGradient / (chart3.Series["Series1"].Points.Count - 1)).ToString();
+
+
+            /*if (chart3.Series["Series1"].Points.Count > 1)
+        {
+            gradient = chart3.Series["Series1"].Points[chart3.Series["Series1"].Points.Count - 1].YValues[0] - chart3.Series["Series1"].Points[chart3.Series["Series1"].Points.Count - 2].YValues[0];
+
+            textBox12.Text = avgGradient.ToString();
+
+            ////graphPoint = new System.Windows.Forms.DataVisualization.Charting.DataPoint(chart4.Series["Series1"].Points.Count, gradient);
+            graphPoint = new System.Windows.Forms.DataVisualization.Charting.DataPoint(chart4.Series["Series1"].Points.Count, avgGradient);
+
+
+            if (chart4.Series["Series1"].Points.Count > 100)
+            {
+                chart4.Series["Series1"].Points.RemoveAt(0);
+
+                for (int j = 0; j < chart4.Series["Series1"].Points.Count; j++)
+                {
+                    chart4.Series["Series1"].Points[j].XValue--;
+                }
+
+                    ////chart3.ChartAreas[0].RecalculateAxesScale();
+            }
+
+            chart4.Series["Series1"].Points.Add(graphPoint);
+
+            if (chart4.Series["Series1"].Points.Count > 10)
+            {
+                double minY = 99999999;
+                double maxY = -99999999;
+
+                for (int j = 0; j < chart4.Series["Series1"].Points.Count; j++)
+                {
+                    ////chart4.Series["Series1"].Points[j].XValue--;
+
+                    if (chart4.Series["Series1"].Points[j].YValues[0] < minY)
+                        minY = chart4.Series["Series1"].Points[j].YValues[0];
+
+                    if (chart4.Series["Series1"].Points[j].YValues[0] > maxY)
+                        maxY = chart4.Series["Series1"].Points[j].YValues[0];
+                }
+
+                if (minY == maxY)
+                {
+                    maxY++;
+                    minY--;
+                }
+
+                chart4.ChartAreas[0].AxisY.Maximum = maxY;
+                chart4.ChartAreas[0].AxisY.Minimum = minY;
+            }
+
+        }
+        */
+
+
+            /*double gradient2 = 0;
+            double totalGradient2 = 0;
+            double avgGradient2 = 0;
+
+            if (chart4.Series["Series1"].Points.Count > 1)
+                gradient2 = chart4.Series["Series1"].Points[chart4.Series["Series1"].Points.Count - 1].YValues[0] - chart4.Series["Series1"].Points[chart4.Series["Series1"].Points.Count - 2].YValues[0];
+
+            int avgGradient2PointsCount = 10;
+            ////int avgGradient2PointsCount = chart4.Series["Series1"].Points.Count;
+
+            if (chart4.Series["Series1"].Points.Count > avgGradient2PointsCount)
+            {
+
+                for (int j = chart4.Series["Series1"].Points.Count - 1; j > chart4.Series["Series1"].Points.Count - avgGradient2PointsCount; j--)
+                {
+                    totalGradient2 += (chart4.Series["Series1"].Points[j].YValues[0] - chart4.Series["Series1"].Points[j - 1].YValues[0]);
+                }
+
+                avgGradient2 = totalGradient2 / (avgGradient2PointsCount - 1);
+
+                textBox13.Text = avgGradient2.ToString();
+                ////textBox13.Text = gradient2.ToString();
+
+                if (avgGradient2 > 0)
+                {
+                    int soundFrequency = (int)avgGradient2 * 100;
+
+                    if (soundFrequency > 37 && soundFrequency < 32000)
+                        BackgroundBeep.Beep(soundFrequency, 1000);
+                }
+            }*/
 
 
             /*if (!chart3RangeSet)
@@ -1217,7 +1418,7 @@ namespace RTLSpectrumAnalyzerGUI
 
                 if (value < chart3.ChartAreas[0].AxisY.Minimum)
                     chart3.ChartAreas[0].AxisY.Minimum = value;
-            }*/           
+            }*/
         }
 
 
@@ -2030,7 +2231,7 @@ namespace RTLSpectrumAnalyzerGUI
         }
     }
 
-        private void StartRecordingThread(Object myObject, EventArgs myEventArgs)
+        /*private void StartRecordingThread(Object myObject, EventArgs myEventArgs)
         {
             button4.PerformClick();
 
@@ -2039,7 +2240,7 @@ namespace RTLSpectrumAnalyzerGUI
             eventTimer.Tick += new EventHandler(StartRecordingThread);
             eventTimer.Interval = 1000;
             eventTimer.Start();
-        }
+        }*/
 
         private void StopRecordingThread()
         {
