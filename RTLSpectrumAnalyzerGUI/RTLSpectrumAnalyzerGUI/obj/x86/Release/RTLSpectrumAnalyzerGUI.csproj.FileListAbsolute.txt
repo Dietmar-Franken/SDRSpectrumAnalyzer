@@ -11,3 +11,4 @@ C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\ob
 C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\obj\x86\Release\RTLSpectrumAnalyzerGUI.pdb
 C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\obj\x86\Release\RTLSpectrumAnalyzerGUI.csproj.CoreCompileInputs.cache
 C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\obj\x86\Release\RTLSpectrumAnalyzerGUI.Form2.resources
+C:\projects\RTLSpectrumAnalyzer\RTLSpectrumAnalyzerGUI\RTLSpectrumAnalyzerGUI\obj\x86\Release\RTLSpectrumAnalyzerGUI.csprojResolveAssemblyReference.cache
